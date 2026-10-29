@@ -34,8 +34,9 @@ h1 { font-weight: 700; font-size: 30px; line-height: 1.15; margin-top: 6px; }
 .bien h2 { font-weight: 700; font-size: 24px; line-height: 1.2; margin-top: 4px; }
 .bien .accroche { color: var(--gris); margin-top: 4px; }
 .galerie { margin-top: 16px; }
-.galerie .grande { aspect-ratio: 1600 / 1040; max-height: 540px; width: 100%; background: var(--tuile) center / cover no-repeat; }
-.galerie .vignettes { display: flex; gap: 6px; padding: 6px 24px 0; overflow-x: auto; }
+.galerie { background: var(--tuile); }
+.galerie .grande { aspect-ratio: 1600 / 1040; max-width: 830px; margin: 0 auto; /* jamais rognée : le logo MOSAIC de la photo reste visible */ background: var(--tuile) center / cover no-repeat; }
+.galerie .vignettes { display: flex; gap: 6px; padding: 6px 24px 6px; background: #fff; overflow-x: auto; }
 .galerie .vignettes button { flex: none; width: 92px; aspect-ratio: 1600 / 1040; border: 2px solid transparent; background: var(--tuile) center / cover no-repeat; cursor: pointer; }
 .galerie .vignettes button.actif { border-color: var(--accent); }
 .tuiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 16px 24px 0; }
