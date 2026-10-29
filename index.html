@@ -8,16 +8,15 @@
 <meta name="referrer" content="no-referrer">
 <title>Votre sélection · MOSAIC Immobilier d'entreprise</title>
 <link rel="icon" href="favicon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
 /* Mini-site MOSAIC (1.20.0) : la sélection de biens d'un client. Cette page ne contient aucune donnée : elle lit la sélection
    du client dans la base, par le code secret de son lien (?s=…), et rien d'autre. Plus rien après 15 jours. */
 :root { --bleu: #003269; --accent: #009FE2; --nuit: #001B4D; --tuile: #EEF3F8; --gris: #4A5A75; --filet: #C9D3E0; --carte: #DCE3EC; --ok: #1F7A4D; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { -webkit-text-size-adjust: 100%; }
-body { font-family: "Montserrat", "Helvetica Neue", Arial, sans-serif; font-weight: 300; color: var(--bleu); background: #F5F7FA; line-height: 1.45; }
+@font-face { font-family: "Aftika"; font-weight: 100 500; font-display: swap; src: url("Aftika-Light.otf") format("opentype"); }
+@font-face { font-family: "Aftika"; font-weight: 600 900; font-display: swap; src: url("Aftika-Bold.otf") format("opentype"); }
+body { font-family: "Aftika", "Helvetica Neue", Arial, sans-serif; font-weight: 300; color: var(--bleu); background: #F5F7FA; line-height: 1.45; }
 b, strong { font-weight: 700; }
 img { display: block; max-width: 100%; }
 .haut { background: #fff; border-bottom: 1px solid var(--carte); }
