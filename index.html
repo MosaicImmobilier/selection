@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Page privée d'un client : jamais dans les moteurs de recherche, jamais d'adresse transmise aux sites liés -->
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="referrer" content="no-referrer">
+<title>Votre sélection · MOSAIC Immobilier d'entreprise</title>
+<link rel="icon" href="favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+/* Mini-site MOSAIC (1.20.0) : la sélection de biens d'un client. Cette page ne contient aucune donnée : elle lit la sélection
+   du client dans la base, par le code secret de son lien (?s=…), et rien d'autre. Plus rien après 15 jours. */
+:root { --bleu: #003269; --accent: #009FE2; --nuit: #001B4D; --tuile: #EEF3F8; --gris: #4A5A75; --filet: #C9D3E0; --carte: #DCE3EC; --ok: #1F7A4D; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body { font-family: "Montserrat", "Helvetica Neue", Arial, sans-serif; font-weight: 300; color: var(--bleu); background: #F5F7FA; line-height: 1.45; }
+b, strong { font-weight: 700; }
+img { display: block; max-width: 100%; }
+.haut { background: #fff; border-bottom: 1px solid var(--carte); }
+.haut .dedans { max-width: 1040px; margin: 0 auto; padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.haut img { width: 150px; }
+.haut .tel { font-weight: 600; color: var(--bleu); text-decoration: none; font-size: 14px; white-space: nowrap; }
+main { max-width: 1040px; margin: 0 auto; padding: 28px 20px 40px; }
+.surtitre { font-weight: 700; font-size: 12px; letter-spacing: .14em; color: var(--accent); text-transform: uppercase; }
+h1 { font-weight: 700; font-size: 30px; line-height: 1.15; margin-top: 6px; }
+.intro { color: var(--gris); margin-top: 8px; max-width: 680px; }
+.validite { display: inline-block; margin-top: 12px; font-size: 13px; color: var(--gris); background: #fff; border: 1px solid var(--carte); padding: 5px 10px; }
+.bien { background: #fff; border: 1px solid var(--carte); margin-top: 26px; }
+.bien .tete { padding: 22px 24px 0; }
+.bien h2 { font-weight: 700; font-size: 24px; line-height: 1.2; margin-top: 4px; }
+.bien .accroche { color: var(--gris); margin-top: 4px; }
+.galerie { margin-top: 16px; }
+.galerie .grande { aspect-ratio: 1600 / 1040; max-height: 540px; width: 100%; background: var(--tuile) center / cover no-repeat; }
+.galerie .vignettes { display: flex; gap: 6px; padding: 6px 24px 0; overflow-x: auto; }
+.galerie .vignettes button { flex: none; width: 92px; aspect-ratio: 1600 / 1040; border: 2px solid transparent; background: var(--tuile) center / cover no-repeat; cursor: pointer; }
+.galerie .vignettes button.actif { border-color: var(--accent); }
+.tuiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 16px 24px 0; }
+.tuile { background: var(--tuile); padding: 10px 12px; }
+.lbl { font-weight: 700; font-size: 10px; letter-spacing: .14em; color: var(--accent); text-transform: uppercase; }
+.tuile .v { font-weight: 700; font-size: 16px; margin-top: 4px; }
+.tuile .v small { font-size: 11px; font-weight: 600; margin-left: 3px; }
+.corps { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; padding: 20px 24px 24px; }
+h3 { font-weight: 700; font-size: 17px; padding-bottom: 7px; border-bottom: 1px solid var(--filet); }
+.texte { color: var(--gris); margin-top: 10px; white-space: pre-line; font-size: 15px; }
+.puces { list-style: none; margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 4px 14px; }
+.puces li { position: relative; padding-left: 16px; font-size: 14px; color: var(--gris); }
+.puces li::before { content: ""; position: absolute; left: 1px; top: 7px; width: 7px; height: 7px; background: var(--accent); transform: rotate(45deg); }
+table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 14px; }
+td { padding: 8px 0 7px; border-bottom: 1px solid var(--carte); vertical-align: top; color: var(--gris); }
+td.v { color: var(--bleu); font-weight: 600; padding-left: 10px; }
+.dpe { display: inline-flex; gap: 2px; align-items: center; }
+.dpe span { width: 19px; height: 17px; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 10px; color: #fff; opacity: .3; }
+.dpe span.oui { opacity: 1; width: 25px; height: 22px; font-size: 13px; }
+.situation { margin-top: 18px; }
+.situation img { width: 100%; margin-top: 8px; border: 1px solid var(--carte); }
+.legende { font-size: 12px; color: var(--gris); margin-top: 5px; }
+.actions { border-top: 1px solid var(--carte); padding: 18px 24px 22px; background: #FAFBFD; }
+.actions .q { font-weight: 600; }
+.boutons { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+.btn { font: inherit; font-weight: 600; font-size: 15px; padding: 12px 18px; border: 1px solid var(--bleu); background: #fff; color: var(--bleu); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
+.btn.principal { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn.choisi { background: var(--bleu); border-color: var(--bleu); color: #fff; }
+.btn:disabled { opacity: .6; cursor: default; }
+.btn.discret { border-color: var(--carte); color: var(--gris); font-weight: 400; font-size: 14px; padding: 10px 14px; }
+.merci { margin-top: 10px; color: var(--ok); font-weight: 600; font-size: 14px; }
+.conseiller { background: var(--bleu); color: #fff; margin-top: 30px; padding: 22px 24px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; align-items: center; }
+.conseiller .nom { font-weight: 700; font-size: 19px; margin-top: 4px; }
+.conseiller a { color: #fff; }
+.note { font-size: 12px; color: var(--gris); margin-top: 12px; }
+footer { max-width: 1040px; margin: 0 auto; padding: 0 20px 34px; text-align: center; font-size: 11px; color: var(--gris); line-height: 1.6; }
+footer .filet { position: relative; height: 12px; margin-bottom: 10px; }
+footer .filet::before, footer .filet::after { content: ""; position: absolute; top: 5.5px; height: 1px; background: var(--bleu); }
+footer .filet::before { left: 0; right: calc(50% + 14px); } footer .filet::after { right: 0; left: calc(50% + 14px); }
+footer .filet i { position: absolute; left: 50%; top: 2px; width: 9px; height: 9px; margin-left: -4.5px; background: var(--accent); transform: rotate(45deg); }
+.message { background: #fff; border: 1px solid var(--carte); padding: 34px 28px; margin-top: 10px; text-align: center; }
+.message h1 { font-size: 24px; }
+.message p { color: var(--gris); margin-top: 10px; }
+.chargement { text-align: center; color: var(--gris); padding: 80px 0; }
+@media (max-width: 760px) {
+  h1 { font-size: 24px; } .bien h2 { font-size: 20px; }
+  .tuiles { grid-template-columns: 1fr 1fr; padding: 14px 16px 0; }
+  .bien .tete, .actions { padding-left: 16px; padding-right: 16px; }
+  .galerie .vignettes { padding: 6px 16px 0; } .galerie .vignettes button { width: 72px; }
+  .corps { grid-template-columns: 1fr; gap: 20px; padding: 18px 16px 20px; }
+  .boutons .btn { flex: 1 1 100%; justify-content: center; }
+}
+</style>
+</head>
+<body>
+<header class="haut"><div class="dedans"><img src="logo_mosaic.png" alt="MOSAIC Immobilier d'entreprise"><a class="tel" id="tel_haut" href="tel:+33493482709">04 93 48 27 09</a></div></header>
+<main id="page"><p class="chargement">Chargement de votre sélection…</p></main>
+<footer>
+  <div class="filet"><i></i></div>
+  MOSAIC Immobilier d'entreprise · SAS au capital de 1 500 € · 57 avenue Docteur Raymond Picaud, 06400 Cannes · SIREN 992 079 053 · RCS Cannes<br>
+  Carte professionnelle Transaction n° CPI 0605 2025 000 000 187 délivrée par la CCI Nice Côte d'Azur · Titulaire ne recevant ni fonds, ni effets, ni valeurs<br>
+  Garantie financière et assurance RCP : GALIAN-SMABTP, n° GF0000012169 · Barème d'honoraires sur <a href="https://www.mosaicimmobilier.com" style="color:inherit">www.mosaicimmobilier.com</a>
+</footer>
+<script src="config.js"></script>
+<script>
+(function () {
+  "use strict";
+  const C = window.SELECTION_CONFIG || {};
+  const page = document.getElementById("page");
+  const jeton = new URLSearchParams(location.search).get("s") || "";
+  const e = (t) => String(t ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const date = (d) => new Date(d).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+  const telLien = (t) => "tel:" + String(t || "").replace(/[^\d+]/g, "").replace(/^0/, "+33");
+  // Seules les deux fonctions publiques de la base sont appelées, avec le code du lien ; aucune table n'est lisible
+  async function rpc(nom, corps) {
+    const r = await fetch(`${C.supabaseUrl}/rest/v1/rpc/${nom}`, { method: "POST", headers: { "Content-Type": "application/json", apikey: C.supabaseAnonKey, Authorization: `Bearer ${C.supabaseAnonKey}` }, body: JSON.stringify(corps) });
+    const j = await r.json().catch(() => null);
+    if (!r.ok) throw new Error(j?.message || "Service indisponible, réessayez dans un instant.");
+    return j;
+  }
+  const blocConseiller = (c) => c && c.nom ? `<div class="conseiller"><div><div class="lbl">Votre conseiller</div><div class="nom">${e(c.nom)}</div>
+    <div>${c.telephone ? `<a href="${telLien(c.telephone)}">${e(c.telephone)}</a>` : ""}${c.email ? ` · <a href="mailto:${e(c.email)}">${e(c.email)}</a>` : ""}</div></div></div>` : "";
+  function message(titre, texte, c) {
+    document.title = `${titre} · MOSAIC Immobilier d'entreprise`;
+    page.innerHTML = `<div class="message"><h1>${e(titre)}</h1><p>${texte}</p></div>${blocConseiller(c)}`;
+  }
+
+  const LETTRES = [["A", "#009A44"], ["B", "#4DB848"], ["C", "#C2D82E"], ["D", "#FFE600"], ["E", "#FDB813"], ["F", "#F37021"], ["G", "#E2001A"]];
+  const REPONSES = { visite: "Je veux visiter", rappel: "Rappelez-moi", non: "Pas pour moi" };
+  const MERCIS = { visite: "Merci ! Votre conseiller vous rappelle pour organiser la visite.", rappel: "Merci ! Votre conseiller vous rappelle très vite.", non: "C'est noté, merci : ce bien ne vous sera plus proposé." };
+  function bien(b, n, reponse) {
+    const photos = b.photos || [];
+    return `<article class="bien" id="bien-${n}">
+      <div class="tete"><div class="surtitre">${e(b.surtitre)}</div><h2>${e(b.titre)}</h2><p class="accroche">${e(b.accroche)}</p></div>
+      ${photos.length ? `<div class="galerie"><div class="grande" data-grande style="background-image:url('${e(photos[0])}')" role="img" aria-label="Photo du bien"></div>
+        ${photos.length > 1 ? `<div class="vignettes">${photos.map((p, i) => `<button type="button" class="${i ? "" : "actif"}" data-photo="${e(p)}" style="background-image:url('${e(p)}')" aria-label="Photo ${i + 1}"></button>`).join("")}</div>` : ""}</div>` : ""}
+      <div class="tuiles">${(b.tuiles || []).map((t) => `<div class="tuile"><div class="lbl">${e(t.k)}</div><div class="v">${e(t.v)}${t.u ? `<small>${e(t.u)}</small>` : ""}</div></div>`).join("")}</div>
+      <div class="corps">
+        <div><h3>Le bien</h3>${b.description ? `<p class="texte">${e(b.description)}</p>` : ""}
+          ${(b.equipements || []).length ? `<ul class="puces">${b.equipements.map((x) => `<li>${e(x)}</li>`).join("")}</ul>` : ""}</div>
+        <div><h3>${e(b.titre_conditions)}</h3><table><tbody>${(b.conditions || []).map((x) => `<tr><td>${e(x.k)}</td><td class="v">${e(x.v)}</td></tr>`).join("")}
+          ${b.dpe ? `<tr><td>DPE</td><td class="v">${b.dpe_lettre ? `<span class="dpe">${LETTRES.map(([l, c]) => `<span class="${l === b.dpe_lettre ? "oui" : ""}" style="background:${c}">${l}</span>`).join("")}</span>` : e(b.dpe)}</td></tr>` : ""}</tbody></table>
+          ${b.carte ? `<div class="situation"><div class="lbl">Situation</div><img src="${e(b.carte)}" alt="Zone approximative du bien" loading="lazy"><p class="legende">Zone approximative${b.accroche ? " · " + e(b.accroche) : ""} · adresse exacte communiquée lors de la visite</p></div>` : ""}
+          ${b.fiche ? `<p style="margin-top:16px"><a class="btn discret" href="${e(b.fiche)}" download="${e(b.fiche_nom || "Fiche du bien.pdf")}" target="_blank" rel="noopener">Télécharger la fiche (PDF)</a></p>` : ""}
+          ${b.reference ? `<p class="legende" style="margin-top:10px">Référence ${e(b.reference)}</p>` : ""}</div>
+      </div>
+      <div class="actions"><div class="q">Ce bien vous intéresse ?</div>
+        <div class="boutons">${Object.entries(REPONSES).map(([k, t]) => `<button type="button" class="btn${reponse === k ? " choisi" : k === "visite" && !reponse ? " principal" : k === "non" ? " discret" : ""}" data-n="${n}" data-reponse="${k}">${e(t)}</button>`).join("")}</div>
+        <p class="merci" data-merci ${reponse ? "" : "hidden"}>${e(MERCIS[reponse] || "")}</p></div>
+    </article>`;
+  }
+
+  async function demarrer() {
+    if (!/^[A-Za-z0-9_-]{20,40}$/.test(jeton)) return message("Lien incomplet", "Ce lien n'est pas complet. Ouvrez-le directement depuis le mail de votre conseiller MOSAIC.");
+    let s;
+    try { s = await rpc("selection_publique", { p_jeton: jeton }); }
+    catch (err) { return message("Sélection indisponible", e(err.message)); }
+    if (s.introuvable) return message("Lien inconnu", "Ce lien ne correspond à aucune sélection. Ouvrez-le directement depuis le mail de votre conseiller MOSAIC.");
+    if (s.expire) return message("Cette sélection n'est plus en ligne", "Elle était valable 15 jours. Votre conseiller peut vous en préparer une nouvelle, avec les biens disponibles aujourd'hui.", s.conseiller);
+    const c = s.conseiller || {}, biens = s.contenu?.biens || [];
+    if (c.telephone) { const t = document.getElementById("tel_haut"); t.textContent = c.telephone; t.href = telLien(c.telephone); }
+    document.title = `${s.contenu?.titre || "Votre sélection"} · MOSAIC Immobilier d'entreprise`;
+    page.innerHTML = `<div class="surtitre">Sélection préparée pour ${e(s.contenu?.client || "vous")}</div>
+      <h1>${e(s.contenu?.titre || "Votre sélection")}</h1>
+      <p class="intro">${e(c.nom || "Votre conseiller")} a choisi pour vous ces biens, d'après votre recherche. Pour chacun, dites-lui en un clic s'il vous intéresse.</p>
+      <span class="validite">En ligne jusqu'au ${e(date(s.expire_le))}</span>
+      ${biens.map((b, i) => bien(b, i + 1, (s.reponses || [])[i] || "")).join("")}
+      ${blocConseiller(c)}
+      <p class="note">Les adresses exactes sont communiquées lors des visites. Documents non contractuels, établis d'après les informations des propriétaires ; surfaces et conditions à confirmer avant toute signature.</p>`;
+    page.addEventListener("click", async (ev) => {
+      const v = ev.target.closest("[data-photo]");
+      if (v) { const art = v.closest(".bien"); art.querySelector("[data-grande]").style.backgroundImage = `url('${v.dataset.photo}')`; art.querySelectorAll("[data-photo]").forEach((x) => x.classList.toggle("actif", x === v)); return; }
+      const b = ev.target.closest("[data-reponse]");
+      if (!b) return;
+      const art = b.closest(".bien"), boutons = art.querySelectorAll("[data-reponse]"), merci = art.querySelector("[data-merci]");
+      boutons.forEach((x) => (x.disabled = true));
+      try {
+        await rpc("selection_repondre", { p_jeton: jeton, p_numero: Number(b.dataset.n), p_reponse: b.dataset.reponse });
+        boutons.forEach((x) => { x.classList.remove("principal"); x.classList.toggle("choisi", x === b); });
+        merci.textContent = MERCIS[b.dataset.reponse]; merci.hidden = false; merci.style.color = "";
+      } catch (err) { merci.textContent = err.message; merci.style.color = "#B3261E"; merci.hidden = false; }
+      boutons.forEach((x) => (x.disabled = false));
+    });
+  }
+  demarrer();
+})();
+</script>
+</body>
+</html>
