@@ -103,9 +103,10 @@ a { color: inherit; }
 .carte-bien .img { aspect-ratio: 1600 / 1040; background: var(--carte) center / cover no-repeat; position: relative; }
 .carte-bien .num { position: absolute; left: 0; top: 0; background: var(--bleu); color: #fff; font-weight: 700; font-size: 14px; padding: 7px 12px; }
 .carte-bien .txt { padding: 16px 18px 18px; flex: 1; display: flex; flex-direction: column; }
-.carte-bien .sur { font-weight: 700; font-size: 10px; letter-spacing: .14em; color: var(--accent); text-transform: uppercase; }
-.carte-bien h3 { font-weight: 700; font-size: 18px; line-height: 1.25; margin-top: 4px; }
-.carte-bien .ville { color: var(--gris); font-size: 14px; margin-top: 2px; }
+/* Toutes les cartes à la même hauteur, quelle que soit la longueur du titre */
+.carte-bien .sur { font-weight: 700; font-size: 10px; letter-spacing: .14em; color: var(--accent); text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.carte-bien h3 { font-weight: 700; font-size: 18px; line-height: 1.25; margin-top: 4px; min-height: 2.5em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.carte-bien .ville { color: var(--gris); font-size: 14px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .carte-bien .prix { margin-top: auto; padding-top: 14px; display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: 14px; border-top: 1px solid var(--carte); margin-top: 14px; }
 .carte-bien .prix b { font-size: 17px; }
 .carte-bien .prix small { font-size: 11px; color: var(--gris); }
@@ -149,6 +150,7 @@ h3.sec { font-weight: 700; font-size: 20px; padding-bottom: 10px; border-bottom:
 .puces li::before { content: ""; position: absolute; left: 12px; top: 50%; width: 7px; height: 7px; margin-top: -3.5px; background: var(--accent); transform: rotate(45deg); }
 .encart { border: 1px solid var(--carte); padding: 22px 22px 20px; }
 table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 15px; }
+td:first-child { white-space: nowrap; padding-right: 16px; }
 td { padding: 10px 0 9px; border-bottom: 1px solid var(--carte); vertical-align: top; color: var(--gris); }
 tr:last-child td { border-bottom: 0; }
 td.v { color: var(--bleu); font-weight: 700; padding-left: 12px; text-align: right; }
@@ -158,6 +160,7 @@ td.v { color: var(--bleu); font-weight: 700; padding-left: 12px; text-align: rig
 .encart .liens { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--carte); }
 .ref { font-size: 12px; color: var(--gris); }
 .situation { margin-top: 32px; }
+.caract { margin-top: 32px; }
 .situation .carte { position: relative; margin-top: 12px; border: 1px solid var(--carte); }
 .situation .carte img { width: 100%; }
 .legende { font-size: 12px; color: var(--gris); margin-top: 6px; }
@@ -420,10 +423,11 @@ footer .filet { display: none; } body.da footer .filet { display: block; }
       <div class="corps">
         <div><h3 class="sec"><span class="losange"></span>Le bien</h3>${b.description ? `<p class="texte">${e(b.description)}</p>` : ""}
           ${(b.equipements || []).length ? `<ul class="puces">${b.equipements.map((x) => `<li>${e(x)}</li>`).join("")}</ul>` : ""}
-          ${b.carte ? `<div class="situation"><h3 class="sec"><span class="losange"></span>Situation</h3><div class="carte"><img src="${e(b.carte)}" alt="Zone approximative du bien" loading="lazy"></div><p class="legende">Zone approximative${b.accroche ? " · " + e(b.accroche) : ""} · l'adresse exacte vous est communiquée lors de la visite</p></div>` : ""}</div>
+          ${(b.caracteristiques || []).length ? `<div class="caract"><h3 class="sec"><span class="losange"></span>Caractéristiques</h3><table><tbody>${b.caracteristiques.map((x) => `<tr><td>${e(x.k)}</td><td class="v">${e(x.v)}</td></tr>`).join("")}</tbody></table></div>` : ""}</div>
         <div><div class="encart"><h3 class="sec"><span class="losange"></span>${e(b.titre_conditions)}</h3><table><tbody>${(b.conditions || []).map((x) => `<tr><td>${e(x.k)}</td><td class="v">${e(x.v)}</td></tr>`).join("")}
           ${b.dpe ? `<tr><td>DPE</td><td class="v">${b.dpe_lettre ? `<span class="dpe">${LETTRES.map(([l, c]) => `<span class="${l === b.dpe_lettre ? "oui" : ""}" style="background:${c}">${l}</span>`).join("")}</span>` : e(b.dpe)}</td></tr>` : ""}</tbody></table>
-          <div class="liens">${b.fiche ? `<a class="btn discret" href="${e(b.fiche)}" download="${e(b.fiche_nom || "Fiche du bien.pdf")}" target="_blank" rel="noopener">${ICONES.pdf}Fiche du bien (PDF)</a>` : ""}${b.reference ? `<span class="ref">Référence ${e(b.reference)}</span>` : ""}</div></div></div>
+          <div class="liens">${b.fiche ? `<a class="btn discret" href="${e(b.fiche)}" download="${e(b.fiche_nom || "Fiche du bien.pdf")}" target="_blank" rel="noopener">${ICONES.pdf}Fiche du bien (PDF)</a>` : ""}${b.reference ? `<span class="ref">Référence ${e(b.reference)}</span>` : ""}</div></div>
+          ${b.carte ? `<div class="situation"><h3 class="sec"><span class="losange"></span>Situation</h3><div class="carte"><img src="${e(b.carte)}" alt="Zone approximative du bien" loading="lazy"></div><p class="legende">Zone approximative${b.accroche ? " · " + e(b.accroche) : ""} · l'adresse exacte vous est communiquée lors de la visite</p></div>` : ""}</div>
       </div>
       <div class="reponse"><img class="losange-fond" src="losange.png" alt=""><div class="dedans-r">
         <div class="q">Ce bien vous intéresse ?<small>Un clic suffit, votre conseiller est prévenu tout de suite.</small></div>
@@ -485,7 +489,7 @@ footer .filet { display: none; } body.da footer .filet { display: block; }
         <img class="logo" src="logo_mosaic.png" alt="MOSAIC Immobilier d'entreprise">
         <div class="surtitre">Sélection privée · ${e(s.contenu?.client || "pour vous")}</div>
         <h1>Votre sélection de ${biens.length} biens</h1>
-        <p class="sous">Choisis pour vous d'après votre recherche${villes.length ? " · " + e(villes.join(", ")) : ""}</p>
+        <p class="sous">Choisis pour vous d'après votre recherche</p>
         <div class="tuiles-doc"><div><span class="lbl">Biens</span><b>${biens.length} sélectionnés</b></div><div><span class="lbl">Secteur${villes.length > 1 ? "s" : ""}</span><b>${villes.length || "-"}</b></div>
           <div><span class="lbl">En ligne jusqu'au</span><b>${e(date(s.expire_le))}</b></div><div><span class="lbl">Votre réponse</span><b>En un clic</b></div></div>
         ${c.nom ? `<div class="bandeau"><div><div class="lbl">Votre conseiller</div><div class="nom">${e(c.nom)}</div><div class="coord">${[c.telephone ? `<a href="${telLien(c.telephone)}">${e(c.telephone)}</a>` : "", c.email ? `<a href="mailto:${e(c.email)}">${e(c.email)}</a>` : ""].filter(Boolean).join(" · ")}</div></div>
