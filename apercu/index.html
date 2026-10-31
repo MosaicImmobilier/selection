@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Page privée d'un client : jamais dans les moteurs de recherche, jamais d'adresse transmise aux sites liés -->
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#001B4D">
+<title>Votre sélection · MOSAIC Immobilier d'entreprise</title>
+<link rel="icon" href="favicon.png">
+<style>
+/* Mini-site MOSAIC (1.20.0) : la sélection de biens d'un client. Cette page ne contient aucune donnée : elle lit la sélection
+   du client dans la base, par le code secret de son lien (?s=…), et rien d'autre. Plus rien après 15 jours.
+   Charte MOSAIC : Aftika, bleu #003269, nuit #001B4D, accent #009FE2, losange à facettes, angles droits. */
+:root { --bleu: #003269; --accent: #009FE2; --nuit: #001B4D; --tuile: #EEF3F8; --gris: #4A5A75; --filet: #C9D3E0; --carte: #DCE3EC; --ok: #1F7A4D; --large: 1120px; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; scroll-padding-top: 84px; }
+@font-face { font-family: "Aftika"; font-weight: 100 500; font-display: swap; src: url("Aftika-Light.otf") format("opentype"); }
+@font-face { font-family: "Aftika"; font-weight: 600 900; font-display: swap; src: url("Aftika-Bold.otf") format("opentype"); }
+body { font-family: "Aftika", "Helvetica Neue", Arial, sans-serif; font-weight: 300; color: var(--bleu); background: #fff; line-height: 1.5; }
+b, strong { font-weight: 700; }
+img { display: block; max-width: 100%; }
+a { color: inherit; }
+.dedans { max-width: var(--large); margin: 0 auto; padding: 0 24px; }
+.lbl { font-weight: 700; font-size: 11px; letter-spacing: .16em; color: var(--accent); text-transform: uppercase; }
+.losange { display: inline-block; width: 8px; height: 8px; background: var(--accent); transform: rotate(45deg); flex: none; }
+
+/* Bandeau du haut, toujours visible */
+.haut { position: sticky; top: 0; z-index: 20; background: rgba(255,255,255,.97); border-bottom: 1px solid var(--carte); backdrop-filter: blur(6px); }
+.haut .dedans { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 72px; }
+.haut img { width: 148px; }
+.haut .droite { display: flex; align-items: center; gap: 18px; }
+.haut .qui { text-align: right; font-size: 13px; color: var(--gris); line-height: 1.3; }
+.haut .qui b { display: block; color: var(--bleu); font-size: 14px; }
+
+/* Boutons */
+.btn { font: inherit; font-weight: 700; font-size: 15px; padding: 13px 20px; border: 1px solid var(--bleu); background: #fff; color: var(--bleu); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 9px; transition: background .15s, color .15s, border-color .15s; }
+.btn svg { width: 17px; height: 17px; flex: none; }
+.btn.plein { background: var(--bleu); color: #fff; }
+.btn.plein:hover { background: var(--nuit); }
+.btn.accent { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn.accent:hover { background: #0089C4; border-color: #0089C4; }
+.btn.clair { background: transparent; border-color: rgba(255,255,255,.6); color: #fff; }
+.btn.clair:hover { background: rgba(255,255,255,.1); border-color: #fff; }
+.btn.fantome { background: transparent; border-color: transparent; color: rgba(255,255,255,.75); font-weight: 300; text-decoration: underline; text-underline-offset: 3px; }
+.btn.choisi { background: #fff; border-color: #fff; color: var(--bleu); }
+.btn:disabled { opacity: .6; cursor: default; }
+.btn.discret { border-color: var(--filet); font-size: 14px; padding: 11px 16px; }
+.btn.discret:hover { border-color: var(--bleu); }
+.btn.petit { padding: 10px 16px; font-size: 14px; }
+
+/* Ouverture : bleu nuit et grand losange à facettes */
+.hero { position: relative; overflow: hidden; color: #fff; background: linear-gradient(115deg, var(--nuit) 0%, var(--bleu) 70%, #0A4A8F 100%); }
+.hero .fond { position: absolute; right: -60px; top: 50%; width: 440px; transform: translateY(-50%); opacity: .92; pointer-events: none; }
+.hero .fond2 { position: absolute; right: 330px; bottom: -120px; width: 150px; opacity: .25; pointer-events: none; }
+.hero .dedans { position: relative; padding-top: 72px; padding-bottom: 80px; }
+.hero .lbl { display: flex; align-items: center; gap: 10px; }
+.hero h1 { font-weight: 700; font-size: 52px; line-height: 1.05; margin-top: 16px; max-width: 640px; letter-spacing: -.01em; }
+.hero h1 em { font-style: normal; color: var(--accent); }
+.hero .pour { font-size: 19px; margin-top: 18px; max-width: 600px; color: rgba(255,255,255,.88); }
+.hero .pour b { color: #fff; }
+.hero .bas { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 22px; margin-top: 34px; }
+.hero .validite { font-size: 13px; color: rgba(255,255,255,.75); display: flex; align-items: center; gap: 8px; }
+.hero .validite svg { width: 16px; height: 16px; }
+.chiffres { display: flex; gap: 40px; margin-top: 48px; padding-top: 26px; border-top: 1px solid rgba(255,255,255,.18); max-width: 620px; }
+.chiffres div { font-size: 13px; color: rgba(255,255,255,.7); }
+.chiffres b { display: block; font-size: 28px; color: #fff; line-height: 1.1; }
+
+/* Proposition B du haut : la photo du premier bien en grand, voile bleu nuit, carte du conseiller */
+.hero.b { background: var(--nuit); min-height: 560px; display: flex; align-items: center; }
+.hero.b .photo { position: absolute; inset: 0; background: var(--bleu) center / cover no-repeat; }
+.hero.b .voile { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(0,18,74,.97) 0%, rgba(0,27,77,.9) 38%, rgba(0,50,105,.55) 68%, rgba(0,50,105,.25) 100%); }
+.hero.b .dedans { width: 100%; display: grid; grid-template-columns: 1fr 340px; gap: 40px; align-items: end; padding-top: 80px; padding-bottom: 80px; }
+.hero.b .marque { width: 54px; margin-bottom: 22px; }
+.hero.b h1 { font-size: 56px; }
+.hero.b .carte-c { background: #fff; color: var(--bleu); padding: 24px 24px 22px; box-shadow: 0 24px 50px rgba(0,10,40,.35); border-top: 4px solid var(--accent); }
+.hero.b .carte-c .nom { font-weight: 700; font-size: 20px; margin-top: 12px; line-height: 1.2; }
+.hero.b .carte-c .role { font-size: 13px; color: var(--gris); }
+.hero.b .carte-c .ident { display: flex; align-items: center; gap: 14px; }
+.hero.b .carte-c .initiales { width: 52px; height: 52px; flex: none; background: var(--bleu); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 17px; clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); margin-top: 12px; }
+.hero.b .carte-c .boutons { margin-top: 18px; display: grid; gap: 8px; }
+.hero.b .carte-c .valid { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--carte); font-size: 13px; color: var(--gris); display: flex; gap: 8px; align-items: center; }
+.hero.b .carte-c .valid svg { width: 16px; height: 16px; color: var(--accent); }
+.facettes { display: grid; grid-template-columns: 3fr 2fr 2fr 1.5fr 1.5fr 1fr 4fr; height: 6px; }
+.facettes i:nth-child(1) { background: #009FE2; } .facettes i:nth-child(2) { background: #008AD3; } .facettes i:nth-child(3) { background: #005E9F; }
+.facettes i:nth-child(4) { background: #004A8C; } .facettes i:nth-child(5) { background: #002E6B; } .facettes i:nth-child(6) { background: #00124A; } .facettes i:nth-child(7) { background: #003269; }
+
+/* Sommaire : les biens en un coup d'œil */
+.sommaire { background: var(--tuile); padding: 56px 0; }
+.titre-section { display: flex; align-items: end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.titre-section h2 { font-weight: 700; font-size: 30px; line-height: 1.15; margin-top: 6px; }
+.titre-section p { color: var(--gris); max-width: 460px; }
+/* Tous les biens de la sélection sur une seule rangée (jusqu'à 5) */
+.cartes { display: grid; grid-template-columns: repeat(var(--col, 4), minmax(0, 1fr)); gap: 16px; margin-top: 28px; }
+.cartes.serre { gap: 12px; }
+.cartes.serre .txt { padding: 14px 14px 16px; }
+.cartes.serre h3 { font-size: 16px; }
+.cartes.serre .sur { letter-spacing: .06em; font-size: 9.5px; }
+.cartes.serre .prix { flex-direction: column; align-items: flex-start; gap: 2px; }
+.carte-bien { background: #fff; text-decoration: none; display: flex; flex-direction: column; border-bottom: 3px solid transparent; transition: transform .15s, box-shadow .15s, border-color .15s; }
+.carte-bien:hover { transform: translateY(-3px); box-shadow: 0 14px 30px rgba(0,27,77,.12); border-color: var(--accent); }
+.carte-bien .img { aspect-ratio: 1600 / 1040; background: var(--carte) center / cover no-repeat; position: relative; }
+.carte-bien .num { position: absolute; left: 0; top: 0; background: var(--bleu); color: #fff; font-weight: 700; font-size: 14px; padding: 7px 12px; }
+.carte-bien .txt { padding: 16px 18px 18px; flex: 1; display: flex; flex-direction: column; }
+.carte-bien .sur { font-weight: 700; font-size: 10px; letter-spacing: .14em; color: var(--accent); text-transform: uppercase; }
+.carte-bien h3 { font-weight: 700; font-size: 18px; line-height: 1.25; margin-top: 4px; }
+.carte-bien .ville { color: var(--gris); font-size: 14px; margin-top: 2px; }
+.carte-bien .prix { margin-top: auto; padding-top: 14px; display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: 14px; border-top: 1px solid var(--carte); margin-top: 14px; }
+.carte-bien .prix b { font-size: 17px; }
+.carte-bien .prix small { font-size: 11px; color: var(--gris); }
+.carte-bien .etat { font-size: 12px; font-weight: 700; color: var(--ok); margin-top: 8px; }
+.carte-bien .etat:empty { display: none; }
+
+/* Un bien */
+.bien { padding: 72px 0 0; }
+.bien + .bien { border-top: 1px solid var(--carte); margin-top: 72px; }
+.bien .tete { display: grid; grid-template-columns: auto 1fr; gap: 0 22px; align-items: start; }
+.bien .grand-num { font-weight: 700; font-size: 64px; line-height: .9; color: transparent; -webkit-text-stroke: 1.5px var(--accent); }
+.bien h2 { font-weight: 700; font-size: 34px; line-height: 1.12; margin-top: 6px; }
+.bien .ville { display: flex; align-items: center; gap: 6px; color: var(--gris); margin-top: 6px; font-size: 16px; }
+.bien .ville svg { width: 16px; height: 16px; color: var(--accent); }
+
+/* Photos en mosaïque ; la visionneuse montre toujours la photo entière (le logo MOSAIC de la photo reste visible) */
+.mosaique { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 8px; margin-top: 28px; }
+.mosaique button { border: 0; padding: 0; cursor: zoom-in; background: var(--tuile) center / cover no-repeat; aspect-ratio: 1600 / 1040; position: relative; overflow: hidden; }
+.mosaique button:first-child { grid-row: span 2; aspect-ratio: auto; }
+.mosaique button::after { content: ""; position: absolute; inset: 0; background: rgba(0,27,77,0); transition: background .15s; }
+.mosaique button:hover::after { background: rgba(0,27,77,.12); }
+.mosaique .plus { position: absolute; inset: 0; z-index: 1; display: flex; align-items: center; justify-content: center; background: rgba(0,27,77,.62); color: #fff; font-weight: 700; font-size: 18px; }
+.mosaique.n1 { grid-template-columns: 1fr; } .mosaique.n1 button:first-child { grid-row: auto; aspect-ratio: 1600 / 1040; max-width: 900px; }
+.mosaique.n2 { grid-template-columns: 1fr 1fr; } .mosaique.n2 button:first-child { grid-row: auto; aspect-ratio: 1600 / 1040; }
+.mosaique.n3 { grid-template-columns: 2fr 1fr; }
+.mosaique.n4 .p3 { grid-column: span 2; aspect-ratio: auto; }
+.voir-tout { margin-top: 10px; font-size: 13px; color: var(--gris); display: flex; align-items: center; gap: 8px; }
+
+/* Chiffres clés */
+.tuiles { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 28px; border-top: 3px solid var(--bleu); background: var(--tuile); }
+.tuile { padding: 18px 20px; }
+.tuile + .tuile { border-left: 1px solid var(--carte); }
+.tuile .v { font-weight: 700; font-size: 22px; margin-top: 6px; line-height: 1.15; }
+.tuile .v small { display: block; font-size: 12px; font-weight: 300; color: var(--gris); margin-top: 2px; }
+
+.corps { display: grid; grid-template-columns: 1.35fr 1fr; gap: 44px; margin-top: 40px; }
+h3.sec { font-weight: 700; font-size: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--filet); display: flex; align-items: center; gap: 10px; }
+.texte { color: var(--gris); margin-top: 14px; white-space: pre-line; font-size: 16px; line-height: 1.65; }
+.puces { list-style: none; margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px 18px; }
+.puces li { position: relative; padding: 10px 12px 10px 30px; font-size: 14px; color: var(--bleu); background: var(--tuile); }
+.puces li::before { content: ""; position: absolute; left: 12px; top: 50%; width: 7px; height: 7px; margin-top: -3.5px; background: var(--accent); transform: rotate(45deg); }
+.encart { border: 1px solid var(--carte); padding: 22px 22px 20px; }
+table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 15px; }
+td { padding: 10px 0 9px; border-bottom: 1px solid var(--carte); vertical-align: top; color: var(--gris); }
+tr:last-child td { border-bottom: 0; }
+td.v { color: var(--bleu); font-weight: 700; padding-left: 12px; text-align: right; }
+.dpe { display: inline-flex; gap: 2px; align-items: center; }
+.dpe span { width: 19px; height: 17px; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 10px; color: #fff; opacity: .3; }
+.dpe span.oui { opacity: 1; width: 25px; height: 22px; font-size: 13px; }
+.encart .liens { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--carte); }
+.ref { font-size: 12px; color: var(--gris); }
+.situation { margin-top: 32px; }
+.situation .carte { position: relative; margin-top: 12px; border: 1px solid var(--carte); }
+.situation .carte img { width: 100%; }
+.legende { font-size: 12px; color: var(--gris); margin-top: 6px; }
+
+/* Réponse du client, bien en vue */
+.reponse { margin-top: 44px; background: var(--bleu); color: #fff; position: relative; overflow: hidden; }
+.reponse .losange-fond { position: absolute; right: -30px; top: -40px; width: 170px; opacity: .14; pointer-events: none; }
+.reponse .dedans-r { position: relative; padding: 28px 32px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 18px 30px; }
+.reponse .q { font-weight: 700; font-size: 22px; line-height: 1.2; }
+.reponse .q small { display: block; font-weight: 300; font-size: 14px; color: rgba(255,255,255,.75); margin-top: 4px; }
+.boutons { display: flex; flex-wrap: wrap; gap: 10px; }
+.merci { flex-basis: 100%; font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 10px; }
+.merci[hidden] { display: none; }
+.merci::before { content: ""; width: 9px; height: 9px; background: var(--accent); transform: rotate(45deg); flex: none; }
+
+/* Comment ça se passe */
+.etapes { background: var(--tuile); padding: 64px 0; margin-top: 88px; }
+.etapes ol { list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 28px; counter-reset: e; }
+.etapes li { background: #fff; padding: 26px 24px; position: relative; counter-increment: e; }
+.etapes li::before { content: "0" counter(e); font-weight: 700; font-size: 40px; line-height: 1; color: transparent; -webkit-text-stroke: 1.2px var(--accent); display: block; }
+.etapes li b { display: block; font-size: 18px; margin-top: 14px; }
+.etapes li p { color: var(--gris); font-size: 15px; margin-top: 6px; }
+
+/* L'agence et le conseiller */
+.agence { padding: 72px 0; }
+.agence .dedans { display: grid; grid-template-columns: 1.2fr 1fr; gap: 48px; align-items: center; }
+.agence h2 { font-weight: 700; font-size: 30px; line-height: 1.15; margin-top: 8px; }
+.agence p { color: var(--gris); margin-top: 14px; font-size: 16px; line-height: 1.65; }
+.agence .metiers { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+.agence .metiers span { border: 1px solid var(--filet); padding: 6px 12px; font-size: 13px; font-weight: 700; }
+.conseiller { background: var(--nuit); color: #fff; padding: 30px 30px 28px; position: relative; overflow: hidden; }
+.conseiller .losange-fond { position: absolute; right: -40px; bottom: -60px; width: 190px; opacity: .2; }
+.conseiller .ident { display: flex; align-items: center; gap: 16px; margin-top: 14px; position: relative; }
+.conseiller .initiales { width: 64px; height: 64px; flex: none; background: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 20px; clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+.conseiller .nom { font-weight: 700; font-size: 22px; line-height: 1.2; }
+.conseiller .role { font-size: 14px; color: rgba(255,255,255,.7); }
+.conseiller .coord { margin-top: 20px; display: grid; gap: 8px; position: relative; }
+.conseiller .coord a { display: flex; align-items: center; gap: 10px; text-decoration: none; font-size: 15px; }
+.conseiller .coord svg { width: 17px; height: 17px; color: var(--accent); flex: none; }
+.conseiller .boutons { margin-top: 22px; position: relative; }
+
+/* Pied de page */
+footer { background: var(--nuit); color: rgba(255,255,255,.62); font-size: 12px; line-height: 1.7; }
+footer .dedans { padding-top: 40px; padding-bottom: 36px; }
+footer .ligne { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; padding-bottom: 24px; margin-bottom: 22px; border-bottom: 1px solid rgba(255,255,255,.14); }
+footer img { width: 160px; }
+footer .site { color: #fff; font-weight: 700; font-size: 14px; text-decoration: none; }
+footer .note { color: rgba(255,255,255,.8); margin-bottom: 10px; }
+
+/* Visionneuse : la photo entière */
+.visionneuse { position: fixed; inset: 0; z-index: 50; background: rgba(0,16,46,.96); display: none; align-items: center; justify-content: center; }
+.visionneuse.ouverte { display: flex; }
+.visionneuse img { max-width: 92vw; max-height: 84vh; object-fit: contain; }
+.visionneuse button { position: absolute; background: transparent; border: 0; color: #fff; cursor: pointer; padding: 14px; }
+.visionneuse button svg { width: 30px; height: 30px; }
+.visionneuse .fermer { top: 10px; right: 10px; }
+.visionneuse .prec { left: 8px; top: 50%; transform: translateY(-50%); }
+.visionneuse .suiv { right: 8px; top: 50%; transform: translateY(-50%); }
+.visionneuse .compte { position: absolute; bottom: 18px; left: 0; right: 0; text-align: center; color: rgba(255,255,255,.75); font-size: 14px; }
+
+/* Messages (lien incomplet, inconnu, expiré) */
+.message { max-width: 640px; margin: 0 auto; padding: 90px 24px; text-align: center; }
+.message h1 { font-weight: 700; font-size: 30px; }
+.message p { color: var(--gris); margin-top: 12px; font-size: 16px; }
+.message .conseiller { text-align: left; margin-top: 34px; }
+.chargement { text-align: center; color: var(--gris); padding: 120px 0; }
+
+@media (max-width: 1000px) {
+  .cartes, .cartes.serre { grid-auto-flow: column; grid-template-columns: none; grid-auto-columns: 250px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 6px; }
+  .carte-bien { scroll-snap-align: start; }
+}
+@media (max-width: 900px) {
+  .hero .fond { width: 300px; right: -110px; opacity: .5; }
+  .hero .fond2 { display: none; }
+  .corps, .agence .dedans { grid-template-columns: 1fr; gap: 32px; }
+  .etapes ol { grid-template-columns: 1fr; }
+}
+@media (max-width: 900px) {
+  .hero.b .dedans { grid-template-columns: 1fr; gap: 28px; }
+  .hero.b .voile { background: linear-gradient(180deg, rgba(0,18,74,.85) 0%, rgba(0,27,77,.92) 60%, rgba(0,18,74,.98) 100%); }
+}
+@media (max-width: 640px) {
+  .hero.b { min-height: 0; } .hero.b h1 { font-size: 36px; } .hero.b .marque { width: 40px; margin-bottom: 16px; }
+  .hero.b .dedans { padding-top: 40px; padding-bottom: 40px; }
+  .dedans { padding: 0 16px; }
+  .haut .dedans { height: 62px; } .haut img { width: 118px; } .haut .qui { display: none; }
+  .hero .dedans { padding-top: 44px; padding-bottom: 50px; }
+  .hero h1 { font-size: 36px; } .hero .pour { font-size: 16px; }
+  .hero .fond { width: 220px; right: -120px; top: 34%; }
+  .chiffres { gap: 22px; margin-top: 34px; } .chiffres b { font-size: 22px; }
+  .sommaire { padding: 40px 0; } .titre-section h2, .agence h2 { font-size: 24px; }
+  .cartes { grid-auto-flow: column; grid-template-columns: none; grid-auto-columns: 78%; overflow-x: auto; scroll-snap-type: x mandatory; margin: 22px -16px 0; padding: 0 16px 6px; }
+  .carte-bien { scroll-snap-align: start; }
+  .bien { padding-top: 48px; } .bien + .bien { margin-top: 48px; }
+  .bien .grand-num { font-size: 42px; } .bien h2 { font-size: 25px; } .bien .tete { gap: 0 14px; }
+  /* Photos : on les fait défiler du doigt */
+  .mosaique, .mosaique.n2, .mosaique.n3 { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 6px; margin: 22px -16px 0; padding: 0 16px; }
+  .mosaique button, .mosaique button:first-child, .mosaique.n4 .p3 { flex: 0 0 88%; aspect-ratio: 1600 / 1040; scroll-snap-align: center; grid-row: auto; }
+  .mosaique .plus { display: none; }
+  .tuiles { grid-template-columns: 1fr 1fr; }
+  .tuile { padding: 14px 14px; } .tuile .v { font-size: 18px; }
+  .tuile:nth-child(3) { border-left: 0; } .tuile:nth-child(n+3) { border-top: 1px solid var(--carte); }
+  .puces { grid-template-columns: 1fr; }
+  .encart { padding: 18px 16px; }
+  .reponse { margin-left: -16px; margin-right: -16px; } .reponse .dedans-r { padding: 26px 16px; }
+  .reponse .boutons, .conseiller .boutons { width: 100%; } .reponse .boutons .btn, .conseiller .boutons .btn { flex: 1 1 100%; }
+  .etapes { padding: 44px 0; margin-top: 56px; }
+  .agence { padding: 48px 0; }
+  .conseiller { padding: 24px 18px; }
+}
+/* Proposition C : comme les documents MOSAIC (fiche du bien, avis de valeur) : page blanche, carré bleu en haut à droite,
+   trame de points, barre bleu vif sur le bord, grand logo, tuiles, bandeau du conseiller, filet au losange en pied */
+body.da .haut { position: fixed; left: 0; right: 0; transform: translateY(-100%); transition: transform .25s; }
+body.da.defile .haut { transform: none; }
+.doc { position: relative; overflow: hidden; background: #fff; }
+.doc .carre { position: absolute; top: 0; right: 0; width: 132px; height: 132px; background: var(--bleu); }
+.doc .points { position: absolute; right: 164px; top: 52px; width: 116px; height: 64px; background-image: radial-gradient(circle, #D3DBE6 1.8px, transparent 2.3px); background-size: 18px 18px; }
+.doc .barre { position: absolute; left: 0; top: 262px; width: 8px; height: 170px; background: var(--accent); }
+.doc .dedans { position: relative; padding-top: 64px; padding-bottom: 64px; }
+.doc .logo { width: 230px; }
+.doc .surtitre { font-weight: 700; font-size: 14px; letter-spacing: .145em; color: var(--accent); text-transform: uppercase; margin-top: 64px; }
+.doc h1 { font-weight: 700; font-size: 50px; line-height: 1.08; margin-top: 8px; letter-spacing: -.003em; }
+.doc .sous { font-size: 20px; color: var(--gris); margin-top: 12px; }
+.doc .tuiles-doc { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 30px; }
+.doc .tuiles-doc div { background: var(--tuile); padding: 16px 18px; }
+.doc .tuiles-doc b { display: block; font-size: 22px; margin-top: 6px; line-height: 1.15; }
+.doc .bandeau { background: var(--bleu); color: #fff; margin-top: 12px; padding: 24px 28px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 18px 28px; }
+.doc .bandeau .nom { font-weight: 700; font-size: 24px; margin-top: 4px; line-height: 1.2; }
+.doc .bandeau .coord { font-size: 16px; margin-top: 2px; }
+.doc .bandeau .coord a { text-decoration: none; }
+body.da .sommaire { background: #fff; padding-top: 8px; }
+body.da .carte-bien { background: var(--tuile); }
+body.da .carte-bien .num { background: var(--accent); }
+body.da .bien .grand-num { display: none; }
+body.da main { counter-reset: bien; }
+body.da .bien { position: relative; counter-increment: bien; }
+body.da .bien::before { content: ""; position: absolute; left: 0; top: 72px; width: 8px; height: 118px; background: var(--accent); }
+body.da .bien .tete .lbl::before { content: "Bien " counter(bien, decimal-leading-zero) "  ·  "; color: var(--bleu); }
+body.da .bien .tete { display: block; }
+body.da .bien h2 { font-size: 36px; }
+body.da .bien .dedans { display: flex; flex-direction: column; }
+body.da .bien .tete { order: 1; } body.da .bien .tuiles { order: 2; } body.da .bien .mosaique { order: 3; margin-top: 12px; } body.da .bien .voir-tout { order: 4; }
+body.da .bien .corps { order: 5; } body.da .bien .reponse { order: 6; }
+body.da .bien .tuiles { border-top: 0; background: none; gap: 12px; }
+body.da .bien .tuile { background: var(--tuile); border: 0; }
+body.da h3.sec .losange { display: none; }
+body.da h3.sec { font-size: 24px; }
+body.da .encart { border: 0; padding: 0; }
+body.da .reponse .losange-fond { display: none; }
+body.da .etapes { background: #fff; padding-top: 24px; }
+body.da .etapes li { background: var(--tuile); }
+body.da .etapes li::before { -webkit-text-stroke: 0; color: var(--accent); font-size: 30px; }
+body.da footer { background: #fff; color: var(--gris); }
+body.da footer .ligne { display: none; }
+body.da footer .note { color: var(--gris); }
+body.da footer .dedans { text-align: center; padding-top: 0; }
+body.da footer .filet { position: relative; height: 14px; margin-bottom: 16px; }
+body.da footer .filet::before, body.da footer .filet::after { content: ""; position: absolute; top: 6.5px; height: 1px; background: var(--bleu); }
+body.da footer .filet::before { left: 0; right: calc(50% + 16px); } body.da footer .filet::after { right: 0; left: calc(50% + 16px); }
+body.da footer .filet i { position: absolute; left: 50%; top: 2px; width: 11px; height: 11px; margin-left: -5.5px; background: var(--accent); transform: rotate(45deg); }
+footer .filet { display: none; } body.da footer .filet { display: block; }
+@media (max-width: 900px) { .doc .tuiles-doc { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 640px) {
+  .doc .carre { width: 64px; height: 64px; } .doc .points { right: 80px; top: 22px; width: 72px; height: 36px; background-size: 12px 12px; }
+  .doc .barre { top: 170px; width: 6px; height: 120px; }
+  .doc .dedans { padding-top: 34px; padding-bottom: 40px; } .doc .logo { width: 150px; }
+  .doc .surtitre { margin-top: 40px; font-size: 12px; } .doc h1 { font-size: 34px; } .doc .sous { font-size: 16px; }
+  .doc .tuiles-doc div { padding: 12px 14px; } .doc .tuiles-doc b { font-size: 18px; }
+  .doc .bandeau { margin-left: -16px; margin-right: -16px; padding: 22px 16px; } .doc .bandeau .boutons, .doc .bandeau .btn { width: 100%; }
+  body.da .bien h2 { font-size: 26px; } body.da h3.sec { font-size: 20px; }
+}
+</style>
+</head>
+<body>
+<header class="haut"><div class="dedans">
+  <img src="logo_mosaic.png" alt="MOSAIC Immobilier d'entreprise">
+  <div class="droite"><div class="qui" id="qui_haut"></div><a class="btn plein petit" id="tel_haut" href="tel:+33493482709"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg><span>Appeler</span></a></div>
+</div></header>
+<main id="page"><p class="chargement">Chargement de votre sélection…</p></main>
+<footer><div class="dedans"><div class="filet"><i></i></div>
+  <div class="ligne"><img src="logo_mosaic_blanc.png" alt="MOSAIC Immobilier d'entreprise"><a class="site" href="https://www.mosaicimmobilier.com" target="_blank" rel="noopener">www.mosaicimmobilier.com</a></div>
+  <p class="note">Les adresses exactes sont communiquées lors des visites. Documents non contractuels, établis d'après les informations des propriétaires ; surfaces et conditions à confirmer avant toute signature.</p>
+  MOSAIC Immobilier d'entreprise · SAS au capital de 1 500 € · 57 avenue Docteur Raymond Picaud, 06400 Cannes · SIREN 992 079 053 · RCS Cannes<br>
+  Carte professionnelle Transaction n° CPI 0605 2025 000 000 187 délivrée par la CCI Nice Côte d'Azur · Titulaire ne recevant ni fonds, ni effets, ni valeurs<br>
+  Garantie financière et assurance RCP : GALIAN-SMABTP, n° GF0000012169 · Barème d'honoraires sur www.mosaicimmobilier.com
+</div></footer>
+<div class="visionneuse" id="visionneuse" role="dialog" aria-modal="true" aria-label="Photos du bien">
+  <img alt="Photo du bien">
+  <button type="button" class="fermer" aria-label="Fermer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+  <button type="button" class="prec" aria-label="Photo précédente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg></button>
+  <button type="button" class="suiv" aria-label="Photo suivante"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></button>
+  <div class="compte"></div>
+</div>
+<script src="config.js"></script>
+<script>
+(function () {
+  "use strict";
+  const C = window.SELECTION_CONFIG || {};
+  const page = document.getElementById("page");
+  const jeton = new URLSearchParams(location.search).get("s") || "";
+  const e = (t) => String(t ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const date = (d) => new Date(d).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+  const telLien = (t) => "tel:" + String(t || "").replace(/[^\d+]/g, "").replace(/^0/, "+33");
+  const initiales = (nom) => String(nom || "").split(/\s+/).filter(Boolean).slice(0, 2).map((m) => m[0].toUpperCase()).join("");
+  const ICONES = {
+    lieu: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>',
+    tel: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>',
+    mail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16"/><path d="m22 6-10 7L2 6"/></svg>',
+    pdf: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 21h16"/></svg>',
+    horloge: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+    photos: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><rect x="3" y="5" width="18" height="14"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-8 8"/></svg>',
+  };
+  // Seules les deux fonctions publiques de la base sont appelées, avec le code du lien ; aucune table n'est lisible
+  async function rpc(nom, corps) {
+    const r = await fetch(`${C.supabaseUrl}/rest/v1/rpc/${nom}`, { method: "POST", headers: { "Content-Type": "application/json", apikey: C.supabaseAnonKey, Authorization: `Bearer ${C.supabaseAnonKey}` }, body: JSON.stringify(corps) });
+    const j = await r.json().catch(() => null);
+    if (!r.ok) throw new Error(j?.message || "Service indisponible, réessayez dans un instant.");
+    return j;
+  }
+  const blocConseiller = (c) => c && c.nom ? `<div class="conseiller"><img class="losange-fond" src="losange.png" alt="">
+      <div class="lbl">Votre conseiller MOSAIC</div>
+      <div class="ident"><div class="initiales">${e(initiales(c.nom))}</div><div><div class="nom">${e(c.nom)}</div><div class="role">Immobilier d'entreprise</div></div></div>
+      <div class="coord">${c.telephone ? `<a href="${telLien(c.telephone)}">${ICONES.tel}${e(c.telephone)}</a>` : ""}${c.email ? `<a href="mailto:${e(c.email)}">${ICONES.mail}${e(c.email)}</a>` : ""}</div>
+      <div class="boutons">${c.telephone ? `<a class="btn accent" href="${telLien(c.telephone)}">${ICONES.tel}Appeler</a>` : ""}${c.email ? `<a class="btn clair" href="mailto:${e(c.email)}">${ICONES.mail}Écrire</a>` : ""}</div></div>` : "";
+  function message(titre, texte, c) {
+    document.title = `${titre} · MOSAIC Immobilier d'entreprise`;
+    page.innerHTML = `<div class="message"><img src="losange.png" alt="" style="width:44px;margin:0 auto 22px"><h1>${e(titre)}</h1><p>${texte}</p>${blocConseiller(c)}</div>`;
+  }
+
+  const LETTRES = [["A", "#009A44"], ["B", "#4DB848"], ["C", "#C2D82E"], ["D", "#FFE600"], ["E", "#FDB813"], ["F", "#F37021"], ["G", "#E2001A"]];
+  const REPONSES = { visite: "Je veux visiter", rappel: "Rappelez-moi", non: "Pas pour moi" };
+  const MERCIS = { visite: "Merci ! Votre conseiller vous rappelle pour organiser la visite.", rappel: "Merci ! Votre conseiller vous rappelle très vite.", non: "C'est noté, merci : ce bien ne vous sera plus proposé." };
+  const ETATS = { visite: "Vous souhaitez le visiter", rappel: "Rappel demandé", non: "" };
+  const classeBouton = (k, choisi) => "btn" + (choisi ? " choisi" : k === "visite" ? " accent" : k === "non" ? " fantome" : " clair");
+  const num = (n) => String(n).padStart(2, "0");
+  // Loyer ou prix, et surface : ce que montre la carte du sommaire
+  const prixDe = (b) => (b.tuiles || []).find((t) => /loyer|prix/i.test(t.k));
+  const surfaceDe = (b) => (b.tuiles || []).find((t) => /surface/i.test(t.k));
+
+  function carte(b, n, reponse) {
+    const p = prixDe(b), s = surfaceDe(b);
+    return `<a class="carte-bien" href="#bien-${n}"><div class="img" style="background-image:url('${e((b.photos || [])[0] || "")}')"><span class="num">${num(n)}</span></div>
+      <div class="txt"><div class="sur">${e(b.surtitre)}</div><h3>${e(b.titre)}</h3><div class="ville">${e(b.accroche)}</div>
+      <div class="prix"><span>${s ? e(s.v) : ""}</span>${p ? `<span><b>${e(p.v)}</b> <small>${e(p.u || "")}</small></span>` : ""}</div>
+      <div class="etat" data-etat="${n}">${e(ETATS[reponse] || "")}</div></div></a>`;
+  }
+
+  function mosaique(photos, n) {
+    if (!photos.length) return "";
+    const vues = photos.slice(0, 5), reste = photos.length - vues.length;
+    return `<div class="mosaique n${vues.length}">${vues.map((p, i) => `<button type="button" class="p${i}" data-n="${n}" data-i="${i}" style="background-image:url('${e(p)}')" aria-label="Voir la photo ${i + 1}">${i === vues.length - 1 && reste > 0 ? `<span class="plus">+ ${reste} photo${reste > 1 ? "s" : ""}</span>` : ""}</button>`).join("")}</div>
+      <p class="voir-tout">${ICONES.photos}${photos.length} photo${photos.length > 1 ? "s" : ""} · touchez une photo pour l'agrandir</p>`;
+  }
+
+  function bien(b, n, reponse) {
+    return `<section class="bien" id="bien-${n}"><div class="dedans">
+      <div class="tete"><div class="grand-num">${num(n)}</div><div><div class="lbl">${e(b.surtitre)}</div><h2>${e(b.titre)}</h2>${b.accroche ? `<div class="ville">${ICONES.lieu}${e(b.accroche)}</div>` : ""}</div></div>
+      ${mosaique(b.photos || [], n)}
+      <div class="tuiles">${(b.tuiles || []).map((t) => `<div class="tuile"><div class="lbl">${e(t.k)}</div><div class="v">${e(t.v)}${t.u ? `<small>${e(t.u)}</small>` : ""}</div></div>`).join("")}</div>
+      <div class="corps">
+        <div><h3 class="sec"><span class="losange"></span>Le bien</h3>${b.description ? `<p class="texte">${e(b.description)}</p>` : ""}
+          ${(b.equipements || []).length ? `<ul class="puces">${b.equipements.map((x) => `<li>${e(x)}</li>`).join("")}</ul>` : ""}
+          ${b.carte ? `<div class="situation"><h3 class="sec"><span class="losange"></span>Situation</h3><div class="carte"><img src="${e(b.carte)}" alt="Zone approximative du bien" loading="lazy"></div><p class="legende">Zone approximative${b.accroche ? " · " + e(b.accroche) : ""} · l'adresse exacte vous est communiquée lors de la visite</p></div>` : ""}</div>
+        <div><div class="encart"><h3 class="sec"><span class="losange"></span>${e(b.titre_conditions)}</h3><table><tbody>${(b.conditions || []).map((x) => `<tr><td>${e(x.k)}</td><td class="v">${e(x.v)}</td></tr>`).join("")}
+          ${b.dpe ? `<tr><td>DPE</td><td class="v">${b.dpe_lettre ? `<span class="dpe">${LETTRES.map(([l, c]) => `<span class="${l === b.dpe_lettre ? "oui" : ""}" style="background:${c}">${l}</span>`).join("")}</span>` : e(b.dpe)}</td></tr>` : ""}</tbody></table>
+          <div class="liens">${b.fiche ? `<a class="btn discret" href="${e(b.fiche)}" download="${e(b.fiche_nom || "Fiche du bien.pdf")}" target="_blank" rel="noopener">${ICONES.pdf}Fiche du bien (PDF)</a>` : ""}${b.reference ? `<span class="ref">Référence ${e(b.reference)}</span>` : ""}</div></div></div>
+      </div>
+      <div class="reponse"><img class="losange-fond" src="losange.png" alt=""><div class="dedans-r">
+        <div class="q">Ce bien vous intéresse ?<small>Un clic suffit, votre conseiller est prévenu tout de suite.</small></div>
+        <div class="boutons">${Object.entries(REPONSES).map(([k, t]) => `<button type="button" class="${classeBouton(k, reponse === k)}" data-n="${n}" data-reponse="${k}">${e(t)}</button>`).join("")}</div>
+        <p class="merci" data-merci ${reponse ? "" : "hidden"}>${e(MERCIS[reponse] || "")}</p></div></div>
+    </div></section>`;
+  }
+
+  // Visionneuse : photo entière, flèches, clavier et glissé du doigt
+  const vis = document.getElementById("visionneuse"), visImg = vis.querySelector("img"), visCompte = vis.querySelector(".compte");
+  let galerie = [], pos = 0;
+  const montrer = (i) => { pos = (i + galerie.length) % galerie.length; visImg.src = galerie[pos]; visCompte.textContent = `${pos + 1} / ${galerie.length}`; };
+  const ouvrir = (photos, i) => { galerie = photos; montrer(i); vis.classList.add("ouverte"); document.body.style.overflow = "hidden"; };
+  const fermer = () => { vis.classList.remove("ouverte"); document.body.style.overflow = ""; };
+  vis.addEventListener("click", (ev) => {
+    if (ev.target.closest(".fermer") || ev.target === vis) return fermer();
+    if (ev.target.closest(".prec")) return montrer(pos - 1);
+    if (ev.target.closest(".suiv")) return montrer(pos + 1);
+  });
+  document.addEventListener("keydown", (ev) => {
+    if (!vis.classList.contains("ouverte")) return;
+    if (ev.key === "Escape") fermer(); else if (ev.key === "ArrowLeft") montrer(pos - 1); else if (ev.key === "ArrowRight") montrer(pos + 1);
+  });
+  let x0 = null;
+  vis.addEventListener("touchstart", (ev) => { x0 = ev.touches[0].clientX; }, { passive: true });
+  vis.addEventListener("touchend", (ev) => { if (x0 === null) return; const d = ev.changedTouches[0].clientX - x0; if (Math.abs(d) > 40) montrer(pos + (d < 0 ? 1 : -1)); x0 = null; });
+
+  async function demarrer() {
+    if (!/^[A-Za-z0-9_-]{20,40}$/.test(jeton)) return message("Lien incomplet", "Ce lien n'est pas complet. Ouvrez-le directement depuis le mail de votre conseiller MOSAIC.");
+    let s;
+    try { s = await rpc("selection_publique", { p_jeton: jeton }); }
+    catch (err) { return message("Sélection indisponible", e(err.message)); }
+    if (s.introuvable) return message("Lien inconnu", "Ce lien ne correspond à aucune sélection. Ouvrez-le directement depuis le mail de votre conseiller MOSAIC.");
+    if (s.expire) return message("Cette sélection n'est plus en ligne", "Elle était valable 15 jours. Votre conseiller peut vous en préparer une nouvelle, avec les biens disponibles aujourd'hui.", s.conseiller);
+    const c = s.conseiller || {}, biens = s.contenu?.biens || [], reponses = s.reponses || [];
+    if (c.telephone) document.getElementById("tel_haut").href = telLien(c.telephone);
+    if (c.nom) document.getElementById("qui_haut").innerHTML = `Votre conseiller<b>${e(c.nom)}</b>`;
+    document.title = `${s.contenu?.titre || "Votre sélection"} · MOSAIC Immobilier d'entreprise`;
+    const villes = [...new Set(biens.map((b) => b.accroche).filter(Boolean))];
+    const jours = Math.max(0, Math.ceil((new Date(s.expire_le) - Date.now()) / 86400000));
+    const chiffres = `<div class="chiffres"><div><b>${biens.length}</b>biens sélectionnés</div>${villes.length ? `<div><b>${villes.length}</b>secteur${villes.length > 1 ? "s" : ""}</div>` : ""}<div><b>${jours}</b>jour${jours > 1 ? "s" : ""} pour répondre</div></div>`;
+    const hautB = `<section class="hero b"><div class="photo" style="background-image:url('${e((biens[0]?.photos || [])[0] || "")}')"></div><div class="voile"></div><div class="dedans">
+        <div><img class="marque" src="losange.png" alt=""><div class="lbl"><span class="losange"></span>Sélection privée · ${e(s.contenu?.client || "pour vous")}</div>
+          <h1>${biens.length} biens choisis <em>pour votre projet</em></h1>
+          <p class="pour">Découvrez-les, puis dites-nous en un clic ceux que vous voulez visiter.</p>
+          <div class="bas"><a class="btn accent" href="#biens">Découvrir la sélection</a></div>${chiffres}</div>
+        ${c.nom ? `<div class="carte-c"><div class="lbl">Votre conseiller</div><div class="ident"><div class="initiales">${e(initiales(c.nom))}</div><div><div class="nom">${e(c.nom)}</div><div class="role">MOSAIC Immobilier d'entreprise</div></div></div>
+          <div class="boutons">${c.telephone ? `<a class="btn plein" href="${telLien(c.telephone)}">${ICONES.tel}${e(c.telephone)}</a>` : ""}${c.email ? `<a class="btn discret" href="mailto:${e(c.email)}">${ICONES.mail}Écrire un mail</a>` : ""}</div>
+          <div class="valid">${ICONES.horloge}En ligne jusqu'au ${e(date(s.expire_le))}</div></div>` : ""}
+      </div></section><div class="facettes"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>`;
+    const hautA = `<section class="hero"><img class="fond" src="losange.png" alt=""><img class="fond2" src="losange.png" alt=""><div class="dedans">
+        <div class="lbl"><span class="losange"></span>Sélection privée · ${e(s.contenu?.client || "pour vous")}</div>
+        <h1>${biens.length} biens choisis <em>pour votre projet</em></h1>
+        <p class="pour"><b>${e(c.nom || "Votre conseiller")}</b> a sélectionné pour vous ces biens, d'après votre recherche. Découvrez-les, puis dites-lui en un clic ceux que vous voulez visiter.</p>
+        <div class="bas"><a class="btn accent" href="#biens">Découvrir la sélection</a><span class="validite">${ICONES.horloge}En ligne jusqu'au ${e(date(s.expire_le))}</span></div>
+        ${chiffres}
+      </div></section>`;
+    const hautC = `<section class="doc"><div class="carre"></div><div class="points"></div><div class="barre"></div><div class="dedans">
+        <img class="logo" src="logo_mosaic.png" alt="MOSAIC Immobilier d'entreprise">
+        <div class="surtitre">Sélection privée · ${e(s.contenu?.client || "pour vous")}</div>
+        <h1>Votre sélection de ${biens.length} biens</h1>
+        <p class="sous">Choisis pour vous d'après votre recherche${villes.length ? " · " + e(villes.join(", ")) : ""}</p>
+        <div class="tuiles-doc"><div><span class="lbl">Biens</span><b>${biens.length} sélectionnés</b></div><div><span class="lbl">Secteur${villes.length > 1 ? "s" : ""}</span><b>${villes.length || "-"}</b></div>
+          <div><span class="lbl">En ligne jusqu'au</span><b>${e(date(s.expire_le))}</b></div><div><span class="lbl">Votre réponse</span><b>En un clic</b></div></div>
+        ${c.nom ? `<div class="bandeau"><div><div class="lbl">Votre conseiller</div><div class="nom">${e(c.nom)}</div><div class="coord">${[c.telephone ? `<a href="${telLien(c.telephone)}">${e(c.telephone)}</a>` : "", c.email ? `<a href="mailto:${e(c.email)}">${e(c.email)}</a>` : ""].filter(Boolean).join(" · ")}</div></div>
+          <div class="boutons"><a class="btn accent" href="#biens">Découvrir la sélection</a></div></div>` : ""}
+      </div></section>`;
+    const haut = new URLSearchParams(location.search).get("haut");
+    if (haut === "c") {
+      document.body.classList.add("da");
+      const suivre = () => document.body.classList.toggle("defile", scrollY > 420);
+      addEventListener("scroll", suivre, { passive: true }); suivre();
+    }
+    page.innerHTML = `${haut === "b" ? hautB : haut === "c" ? hautC : hautA}
+      <section class="sommaire" id="biens"><div class="dedans">
+        <div class="titre-section"><div><div class="lbl">En un coup d'œil</div><h2>Votre sélection</h2></div><p>Chaque bien a été choisi pour vos critères. Touchez une carte pour voir le détail.</p></div>
+        <div class="cartes${biens.length > 4 ? " serre" : ""}" style="--col:${Math.max(4, biens.length)}">${biens.map((b, i) => carte(b, i + 1, reponses[i] || "")).join("")}</div>
+      </div></section>
+      ${biens.map((b, i) => bien(b, i + 1, reponses[i] || "")).join("")}
+      <section class="etapes"><div class="dedans">
+        <div class="titre-section"><div><div class="lbl">Et ensuite ?</div><h2>Comment ça se passe</h2></div></div>
+        <ol><li><b>Vous nous dites</b><p>Un clic sur « Je veux visiter » ou « Rappelez-moi » : votre conseiller est prévenu aussitôt.</p></li>
+          <li><b>Nous visitons ensemble</b><p>Votre conseiller organise les visites à votre rythme et vous donne l'adresse exacte.</p></li>
+          <li><b>Nous vous accompagnons</b><p>Négociation des conditions, montage du dossier : MOSAIC vous assiste jusqu'à la signature.</p></li></ol>
+      </div></section>
+      <section class="agence"><div class="dedans">
+        <div><div class="lbl">Qui sommes-nous</div><h2>MOSAIC, l'immobilier d'entreprise sur la Côte d'Azur</h2>
+          <p>Bureaux, locaux d'activité, entrepôts, commerces : MOSAIC accompagne les entreprises pour louer, acheter ou vendre leurs locaux. Chaque bien de cette sélection a été choisi pour votre recherche, et votre conseiller reste votre seul interlocuteur, de la première visite jusqu'à la signature.</p>
+          <div class="metiers"><span>Location</span><span>Vente</span><span>Bureaux</span><span>Locaux d'activité</span><span>Entrepôts</span><span>Commerces</span></div></div>
+        ${blocConseiller(c)}
+      </div></section>`;
+    page.addEventListener("click", async (ev) => {
+      const v = ev.target.closest("[data-i]");
+      if (v) return ouvrir(biens[Number(v.dataset.n) - 1].photos || [], Number(v.dataset.i));
+      const b = ev.target.closest("[data-reponse]");
+      if (!b) return;
+      const art = b.closest(".bien"), boutons = art.querySelectorAll("[data-reponse]"), merci = art.querySelector("[data-merci]");
+      boutons.forEach((x) => (x.disabled = true));
+      try {
+        await rpc("selection_repondre", { p_jeton: jeton, p_numero: Number(b.dataset.n), p_reponse: b.dataset.reponse });
+        boutons.forEach((x) => { x.className = classeBouton(x.dataset.reponse, x === b); });
+        merci.textContent = MERCIS[b.dataset.reponse]; merci.hidden = false; merci.style.color = "";
+        const etat = page.querySelector(`[data-etat="${b.dataset.n}"]`); if (etat) etat.textContent = ETATS[b.dataset.reponse] || "";
+      } catch (err) { merci.textContent = err.message; merci.style.color = "#FFB4AB"; merci.hidden = false; }
+      boutons.forEach((x) => (x.disabled = false));
+    });
+  }
+  demarrer();
+})();
+</script>
+</body>
+</html>
