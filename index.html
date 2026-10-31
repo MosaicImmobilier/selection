@@ -147,6 +147,30 @@ td.v { color: var(--bleu); font-weight: 700; padding-left: 12px; text-align: rig
 .merci { flex-basis: 100%; font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 10px; }
 .merci[hidden] { display: none; }
 .merci::before { content: ""; width: 9px; height: 9px; background: var(--accent); transform: rotate(45deg); flex: none; }
+/* Visite (1.22.0) : le client choisit un créneau, son conseiller confirme */
+.visite-etat { flex-basis: 100%; min-width: 0; background: rgba(255,255,255,.08); border-left: 3px solid var(--accent); padding: 14px 16px; font-size: 15px; }
+.visite-etat:empty { display: none; }
+.visite-etat b { display: block; font-size: 16px; }
+.visite-etat small { display: block; color: rgba(255,255,255,.78); margin-top: 2px; }
+.visite-etat.attente { border-left-color: #FFD24D; } .visite-etat.ok { border-left-color: #5BD69B; } .visite-etat.ko { border-left-color: #FFB4AB; }
+.choix-horaire { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; margin-top: 12px; }
+.visite-etat .lien-clair, .creneaux .lien-clair { font: inherit; font-size: 14px; background: none; border: 0; color: rgba(255,255,255,.85); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; padding: 0; }
+.creneaux { flex-basis: 100%; min-width: 0; max-width: 100%; border-top: 1px solid rgba(255,255,255,.18); padding-top: 20px; }
+.creneaux[hidden] { display: none; }
+.creneaux h4 { font-size: 17px; font-weight: 700; }
+.creneaux .aide { font-size: 14px; color: rgba(255,255,255,.75); margin-top: 2px; }
+.creneaux .jours { display: flex; gap: 8px; overflow-x: auto; padding: 14px 0 6px; scrollbar-width: thin; }
+.creneaux .jours button, .creneaux .heures button { font: inherit; cursor: pointer; border: 1px solid rgba(255,255,255,.35); background: transparent; color: #fff; }
+.creneaux .jours button { flex: none; padding: 8px 12px; text-align: center; min-width: 74px; line-height: 1.2; }
+.creneaux .jours button small { display: block; font-size: 12px; color: rgba(255,255,255,.7); text-transform: capitalize; }
+.creneaux .jours button b { font-size: 15px; }
+.creneaux .heures { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 8px; margin-top: 12px; }
+.creneaux .heures button { padding: 10px 6px; font-weight: 700; font-size: 15px; }
+.creneaux button:hover { border-color: #fff; }
+.creneaux button.choisi { background: #fff; color: var(--bleu); border-color: #fff; }
+.creneaux button.choisi small { color: var(--gris); }
+.creneaux .valider { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; margin-top: 18px; }
+.creneaux .erreur { color: #FFB4AB; font-weight: 700; font-size: 14px; flex-basis: 100%; }
 
 /* Comment ça se passe */
 .etapes { background: var(--tuile); padding: 64px 0; margin-top: 88px; }
@@ -335,7 +359,7 @@ footer .filet { display: none; } body.da footer .filet { display: block; }
     horloge: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
     photos: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><rect x="3" y="5" width="18" height="14"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-8 8"/></svg>',
   };
-  // Seules les deux fonctions publiques de la base sont appelées, avec le code du lien ; aucune table n'est lisible
+  // Seules les fonctions publiques de la base sont appelées (sélection, réponse, créneaux, demande de visite, horaire accepté), avec le code du lien ; aucune table n'est lisible
   async function rpc(nom, corps) {
     const r = await fetch(`${C.supabaseUrl}/rest/v1/rpc/${nom}`, { method: "POST", headers: { "Content-Type": "application/json", apikey: C.supabaseAnonKey, Authorization: `Bearer ${C.supabaseAnonKey}` }, body: JSON.stringify(corps) });
     const j = await r.json().catch(() => null);
@@ -357,18 +381,37 @@ footer .filet { display: none; } body.da footer .filet { display: block; }
   const REPONSES = { visite: "Je veux visiter", rappel: "Rappelez-moi", non: "Pas pour moi" };
   const MERCIS = { visite: "Merci ! Votre conseiller vous rappelle pour organiser la visite.", rappel: "Merci ! Votre conseiller vous rappelle très vite.", non: "C'est noté, merci : ce bien ne vous sera plus proposé." };
   const ETATS = { visite: "Vous souhaitez le visiter", rappel: "Rappel demandé", non: "" };
+  // Dates et heures toujours à l'heure de Paris, où se trouvent les biens
+  const PARIS = { timeZone: "Europe/Paris" };
+  const jourDe = (iso) => new Date(iso).toLocaleDateString("fr-FR", { ...PARIS, weekday: "long", day: "numeric", month: "long" });
+  const heureDe = (iso) => new Date(iso).toLocaleTimeString("fr-FR", { ...PARIS, hour: "2-digit", minute: "2-digit" }).replace(":", "h");
+  const cleJour = (iso) => new Date(iso).toLocaleDateString("fr-CA", PARIS); // 2026-11-02
+  const quandDe = (iso) => `le ${jourDe(iso)} à ${heureDe(iso)}`;
+  const active = (v) => v && ((v.statut === "demande" && !v.expiree) || v.statut === "confirme") && new Date(v.fin) > Date.now();
+  // Où en est la visite du client sur ce bien
+  function etatVisite(v) {
+    if (!v) return ["", ""];
+    if (v.statut === "demande" && !v.expiree && v.proposee) return ["attente", `<b>Votre conseiller vous propose ${e(quandDe(v.debut))}</b><small>${v.initial ? `Le créneau du ${e(jourDe(v.initial))} à ${e(heureDe(v.initial))} n'était pas disponible. ` : ""}Cet horaire vous convient ?</small>
+      <span class="choix-horaire"><button type="button" class="btn accent petit" data-accepter>Accepter cet horaire</button><button type="button" class="lien-clair" data-autre>Choisir un autre créneau</button></span>`];
+    if (v.statut === "demande" && !v.expiree) return ["attente", `<b>Visite demandée ${e(quandDe(v.debut))}</b><small>En attente de confirmation : votre conseiller vérifie avec le propriétaire, puis vous confirme la visite par mail.</small>`];
+    if (v.statut === "demande") return ["ko", `<b>Votre demande ${e(quandDe(v.debut))} n'a pas pu être confirmée à temps</b><small>Votre conseiller vous recontacte. Vous pouvez aussi choisir un autre créneau.</small>`];
+    if (v.statut === "confirme") return ["ok", `<b>Visite confirmée ${e(quandDe(v.debut))}</b><small>${v.adresse ? `Rendez-vous au ${e(v.adresse)}.` : "L'adresse exacte vous est envoyée par mail la veille de la visite."} Un empêchement ? Prévenez votre conseiller.</small>`];
+    if (v.statut === "effectue") return ["ok", `<b>Visite faite ${e(quandDe(v.debut))}</b><small>Merci ! Votre conseiller revient vers vous.</small>`];
+    return ["ko", `<b>La visite ${e(quandDe(v.debut))} est annulée</b><small>Choisissez un autre créneau, ou appelez votre conseiller.</small>`];
+  }
+  const texteCarte = (v, reponse) => active(v) ? (v.statut === "confirme" ? `Visite le ${jourDe(v.debut).replace(/^\S+ /, "")} à ${heureDe(v.debut)}` : v.proposee ? "Nouvel horaire proposé" : "Visite demandée") : ETATS[reponse] || "";
   const classeBouton = (k, choisi) => "btn" + (choisi ? " choisi" : k === "visite" ? " accent" : k === "non" ? " fantome" : " clair");
   const num = (n) => String(n).padStart(2, "0");
   // Loyer ou prix, et surface : ce que montre la carte du sommaire
   const prixDe = (b) => (b.tuiles || []).find((t) => /loyer|prix/i.test(t.k));
   const surfaceDe = (b) => (b.tuiles || []).find((t) => /surface/i.test(t.k));
 
-  function carte(b, n, reponse) {
+  function carte(b, n, reponse, visite) {
     const p = prixDe(b), s = surfaceDe(b);
     return `<a class="carte-bien" href="#bien-${n}"><div class="img" style="background-image:url('${e((b.photos || [])[0] || "")}')"><span class="num">${num(n)}</span></div>
       <div class="txt"><div class="sur">${e(b.surtitre)}</div><h3>${e(b.titre)}</h3><div class="ville">${e(b.accroche)}</div>
       <div class="prix">${s ? `<div><span class="lbl">${e(s.k)}</span><b>${e(s.v)}</b></div>` : ""}${p ? `<div><span class="lbl">${e(p.k)}</span><b>${e(p.v)}</b>${p.u ? `<small>${e(p.u)}</small>` : ""}</div>` : ""}</div>
-      <div class="etat" data-etat="${n}">${e(ETATS[reponse] || "")}</div></div></a>`;
+      <div class="etat" data-etat="${n}">${e(texteCarte(visite, reponse))}</div></div></a>`;
   }
 
   function mosaique(photos, n) {
@@ -378,7 +421,8 @@ footer .filet { display: none; } body.da footer .filet { display: block; }
       <p class="voir-tout">${ICONES.photos}${photos.length} photo${photos.length > 1 ? "s" : ""} · touchez une photo pour l'agrandir</p>`;
   }
 
-  function bien(b, n, reponse) {
+  function bien(b, n, reponse, visite) {
+    const [classe, etat] = etatVisite(visite);
     return `<section class="bien" id="bien-${n}"><div class="dedans">
       <div class="tete"><div class="grand-num">${num(n)}</div><div><div class="lbl">${e(b.surtitre)}</div><h2>${e(b.titre)}</h2>${b.accroche ? `<div class="ville">${ICONES.lieu}${e(b.accroche)}</div>` : ""}</div></div>
       ${mosaique(b.photos || [], n)}
@@ -393,9 +437,11 @@ footer .filet { display: none; } body.da footer .filet { display: block; }
         <div class="c-situ">${b.carte ? `<h3 class="sec"><span class="losange"></span>Situation</h3><div class="carte"><img src="${e(b.carte)}" alt="Zone approximative du bien" loading="lazy"><p class="legende">Zone approximative${b.accroche ? " · " + e(b.accroche) : ""} · l'adresse exacte vous est communiquée lors de la visite</p></div>` : ""}</div>
       </div>
       <div class="reponse"><img class="losange-fond" src="losange.png" alt=""><div class="dedans-r">
-        <div class="q">Ce bien vous intéresse ?<small>Un clic suffit, votre conseiller est prévenu tout de suite.</small></div>
+        <div class="q">Ce bien vous intéresse ?<small>Choisissez un créneau de visite, ou demandez à être rappelé.</small></div>
         <div class="boutons">${Object.entries(REPONSES).map(([k, t]) => `<button type="button" class="${classeBouton(k, reponse === k)}" data-n="${n}" data-reponse="${k}">${e(t)}</button>`).join("")}</div>
-        <p class="merci" data-merci ${reponse ? "" : "hidden"}>${e(MERCIS[reponse] || "")}</p></div></div>
+        <div class="visite-etat ${classe}" data-visite>${etat}</div>
+        <p class="merci" data-merci ${reponse && !(reponse === "visite" && visite) ? "" : "hidden"}>${e(MERCIS[reponse] || "")}</p>
+        <div class="creneaux" data-creneaux hidden></div></div></div>
     </div></section>`;
   }
 
@@ -425,7 +471,7 @@ footer .filet { display: none; } body.da footer .filet { display: block; }
     catch (err) { return message("Sélection indisponible", e(err.message)); }
     if (s.introuvable) return message("Lien inconnu", "Ce lien ne correspond à aucune sélection. Ouvrez-le directement depuis le mail de votre conseiller MOSAIC.");
     if (s.expire) return message("Cette sélection n'est plus en ligne", "Elle était valable 15 jours. Votre conseiller peut vous en préparer une nouvelle, avec les biens disponibles aujourd'hui.", s.conseiller);
-    const c = s.conseiller || {}, biens = s.contenu?.biens || [], reponses = s.reponses || [];
+    const c = s.conseiller || {}, biens = s.contenu?.biens || [], reponses = s.reponses || [], visites = s.visites || [];
     if (c.telephone) document.getElementById("tel_haut").href = telLien(c.telephone);
     if (c.nom) document.getElementById("qui_haut").innerHTML = `Votre conseiller<b>${e(c.nom)}</b>`;
     document.title = `${s.contenu?.titre || "Votre sélection"} · MOSAIC Immobilier d'entreprise`;
@@ -446,13 +492,13 @@ footer .filet { display: none; } body.da footer .filet { display: block; }
     page.innerHTML = `${haut}
       <section class="sommaire" id="biens"><div class="dedans">
         <div class="titre-section"><div><div class="lbl">En un coup d'œil</div><h2>Votre sélection</h2></div><p>Chaque bien a été choisi pour vos critères. Touchez une carte pour voir le détail.</p></div>
-        <div class="cartes${biens.length > 4 ? " serre" : ""}" style="--col:${Math.max(4, biens.length)}">${biens.map((b, i) => carte(b, i + 1, reponses[i] || "")).join("")}</div>
+        <div class="cartes${biens.length > 4 ? " serre" : ""}" style="--col:${Math.max(4, biens.length)}">${biens.map((b, i) => carte(b, i + 1, reponses[i] || "", visites[i])).join("")}</div>
       </div></section>
-      ${biens.map((b, i) => bien(b, i + 1, reponses[i] || "")).join("")}
+      ${biens.map((b, i) => bien(b, i + 1, reponses[i] || "", visites[i])).join("")}
       <section class="etapes"><div class="dedans">
         <div class="titre-section"><div><div class="lbl">Et ensuite ?</div><h2>Comment ça se passe</h2></div></div>
-        <ol><li><b>Vous nous dites</b><p>Un clic sur « Je veux visiter » ou « Rappelez-moi » : votre conseiller est prévenu aussitôt.</p></li>
-          <li><b>Nous visitons ensemble</b><p>Votre conseiller organise les visites à votre rythme et vous donne l'adresse exacte.</p></li>
+        <ol><li><b>Vous nous dites</b><p>« Je veux visiter » : vous choisissez un créneau, du lundi au samedi. « Rappelez-moi » : votre conseiller vous appelle.</p></li>
+          <li><b>Nous visitons ensemble</b><p>Votre conseiller confirme la visite par mail et vous donne l'adresse exacte. Un rappel vous est envoyé la veille.</p></li>
           <li><b>Nous vous accompagnons</b><p>Négociation des conditions, montage du dossier : MOSAIC vous assiste jusqu'à la signature.</p></li></ol>
       </div></section>
       <section class="agence"><div class="dedans">
@@ -464,18 +510,99 @@ footer .filet { display: none; } body.da footer .filet { display: block; }
     page.addEventListener("click", async (ev) => {
       const v = ev.target.closest("[data-i]");
       if (v) return ouvrir(biens[Number(v.dataset.n) - 1].photos || [], Number(v.dataset.i));
+      const art = ev.target.closest(".bien");
+      if (!art) return;
+      const n = Number(art.id.replace("bien-", "")), boite = art.querySelector("[data-creneaux]");
+      const jour = ev.target.closest("[data-jour]"); if (jour) { choix.jour = jour.dataset.jour; choix.debut = ""; return dessinerCreneaux(boite); }
+      const h = ev.target.closest("[data-debut]"); if (h) { choix.debut = h.dataset.debut; return dessinerCreneaux(boite); }
+      if (ev.target.closest("[data-demander]")) return demander(art, n, boite);
+      if (ev.target.closest("[data-rappel-visite]")) { boite.hidden = true; return repondre(art, n, "visite"); }
+      if (ev.target.closest("[data-accepter]")) return accepter(art, n, ev.target.closest("[data-accepter]"));
+      if (ev.target.closest("[data-autre]")) return ouvrirCreneaux(art, n, boite, ev.target.closest("[data-autre]"));
       const b = ev.target.closest("[data-reponse]");
       if (!b) return;
-      const art = b.closest(".bien"), boutons = art.querySelectorAll("[data-reponse]"), merci = art.querySelector("[data-merci]");
+      // « Je veux visiter » : le client choisit son créneau (sauf visite déjà demandée ou confirmée)
+      if (b.dataset.reponse === "visite") {
+        if (active(visites[n - 1])) { art.querySelector("[data-visite]").scrollIntoView({ block: "nearest", behavior: "smooth" }); return; }
+        if (!boite.hidden && choix.n === n) { boite.hidden = true; return; }
+        return ouvrirCreneaux(art, n, boite, b);
+      }
+      repondre(art, n, b.dataset.reponse, b);
+    });
+
+    // Réponse simple (« Rappelez-moi », « Pas pour moi », ou visite sans créneau qui convienne)
+    async function repondre(art, n, reponse) {
+      const boutons = art.querySelectorAll("[data-reponse]"), merci = art.querySelector("[data-merci]");
       boutons.forEach((x) => (x.disabled = true));
       try {
-        await rpc("selection_repondre", { p_jeton: jeton, p_numero: Number(b.dataset.n), p_reponse: b.dataset.reponse });
-        boutons.forEach((x) => { x.className = classeBouton(x.dataset.reponse, x === b); });
-        merci.textContent = MERCIS[b.dataset.reponse]; merci.hidden = false; merci.style.color = "";
-        const etat = page.querySelector(`[data-etat="${b.dataset.n}"]`); if (etat) etat.textContent = ETATS[b.dataset.reponse] || "";
+        await rpc("selection_repondre", { p_jeton: jeton, p_numero: n, p_reponse: reponse });
+        boutons.forEach((x) => { x.className = classeBouton(x.dataset.reponse, x.dataset.reponse === reponse); });
+        merci.textContent = MERCIS[reponse]; merci.hidden = false; merci.style.color = "";
+        reponses[n - 1] = reponse;
+        const etat = page.querySelector(`[data-etat="${n}"]`); if (etat) etat.textContent = texteCarte(visites[n - 1], reponse);
       } catch (err) { merci.textContent = err.message; merci.style.color = "#FFB4AB"; merci.hidden = false; }
       boutons.forEach((x) => (x.disabled = false));
-    });
+    }
+
+    // Créneaux libres du bien : du lundi au samedi, 10 h - 17 h, toutes les 30 minutes, un seul client à la fois
+    const choix = { n: 0, liste: [], jour: "", debut: "", erreur: "" };
+    async function ouvrirCreneaux(art, n, boite, bouton) {
+      page.querySelectorAll("[data-creneaux]").forEach((x) => { if (x !== boite) x.hidden = true; });
+      bouton.disabled = true;
+      let r;
+      try { r = await rpc("selection_creneaux", { p_jeton: jeton, p_numero: n }); }
+      catch (err) { bouton.disabled = false; const m = art.querySelector("[data-merci]"); m.textContent = err.message; m.style.color = "#FFB4AB"; m.hidden = false; return; }
+      bouton.disabled = false;
+      // Pas de créneau en ligne (agenda complet, bien pas encore ouvert aux visites) : le conseiller rappelle
+      if (!r.creneaux?.length) return repondre(art, n, "visite");
+      Object.assign(choix, { n, liste: r.creneaux, jour: cleJour(r.creneaux[0]), debut: "", erreur: "" });
+      boite.hidden = false;
+      dessinerCreneaux(boite);
+      boite.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
+    function dessinerCreneaux(boite) {
+      const jours = [...new Set(choix.liste.map(cleJour))];
+      const duJour = choix.liste.filter((t) => cleJour(t) === choix.jour);
+      const court = (t) => new Date(t).toLocaleDateString("fr-FR", { ...PARIS, weekday: "short" }).replace(".", "");
+      const date = (t) => new Date(t).toLocaleDateString("fr-FR", { ...PARIS, day: "numeric", month: "short" }).replace(".", "");
+      boite.innerHTML = `<h4>Choisissez votre créneau de visite</h4>
+        <p class="aide">Visite de 30 minutes avec votre conseiller. Il la confirme avec le propriétaire, puis vous recevez un mail de confirmation.</p>
+        <div class="jours">${jours.map((j) => { const t = choix.liste.find((x) => cleJour(x) === j); return `<button type="button" data-jour="${j}" class="${j === choix.jour ? "choisi" : ""}"><small>${e(court(t))}</small><b>${e(date(t))}</b></button>`; }).join("")}</div>
+        <div class="heures">${duJour.map((t) => `<button type="button" data-debut="${e(t)}" class="${t === choix.debut ? "choisi" : ""}">${e(heureDe(t))}</button>`).join("")}</div>
+        <div class="valider">${choix.erreur ? `<p class="erreur">${e(choix.erreur)}</p>` : ""}
+          <button type="button" class="btn accent" data-demander ${choix.debut ? "" : "disabled"}>${choix.debut ? `Demander la visite ${e(quandDe(choix.debut))}` : "Choisissez une heure"}</button>
+          <button type="button" class="lien-clair" data-rappel-visite>Aucun créneau ne vous convient ? Être rappelé</button></div>`;
+    }
+    // Visite à jour sur la page (zone d'état, boutons, carte du sommaire)
+    function poserVisite(art, n, v) {
+      visites[n - 1] = v; reponses[n - 1] = "visite";
+      const [classe, etat] = etatVisite(v), zone = art.querySelector("[data-visite]");
+      zone.className = `visite-etat ${classe}`; zone.innerHTML = etat;
+      art.querySelector("[data-merci]").hidden = true;
+      art.querySelectorAll("[data-reponse]").forEach((x) => { x.className = classeBouton(x.dataset.reponse, x.dataset.reponse === "visite"); });
+      const carte = page.querySelector(`[data-etat="${n}"]`); if (carte) carte.textContent = texteCarte(v, "visite");
+    }
+    // Le client accepte l'horaire proposé par son conseiller : visite confirmée
+    async function accepter(art, n, bouton) {
+      bouton.disabled = true; bouton.textContent = "Un instant…";
+      try { const r = await rpc("selection_accepter_horaire", { p_jeton: jeton, p_numero: n }); poserVisite(art, n, r.visite); }
+      catch (err) { bouton.disabled = false; bouton.textContent = "Accepter cet horaire"; const m = art.querySelector("[data-merci]"); m.textContent = err.message; m.style.color = "#FFB4AB"; m.hidden = false; }
+    }
+    async function demander(art, n, boite) {
+      if (!choix.debut) return;
+      const bouton = boite.querySelector("[data-demander]");
+      bouton.disabled = true; bouton.textContent = "Envoi de votre demande…";
+      try {
+        const r = await rpc("selection_demander_visite", { p_jeton: jeton, p_numero: n, p_debut: choix.debut });
+        boite.hidden = true;
+        poserVisite(art, n, r.visite);
+      } catch (err) {
+        // Créneau pris entre-temps : la liste est relue
+        choix.erreur = err.message; choix.debut = "";
+        try { const r = await rpc("selection_creneaux", { p_jeton: jeton, p_numero: n }); if (r.creneaux?.length) { choix.liste = r.creneaux; if (!choix.liste.some((t) => cleJour(t) === choix.jour)) choix.jour = cleJour(choix.liste[0]); } } catch (e2) { /* liste gardée */ }
+        dessinerCreneaux(boite);
+      }
+    }
   }
   demarrer();
 })();
