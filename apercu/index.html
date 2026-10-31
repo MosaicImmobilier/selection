@@ -145,7 +145,14 @@ body:not(.da) .carte-bien .prix > div { background: var(--tuile); }
 .tuile .v { font-weight: 700; font-size: 22px; margin-top: 6px; line-height: 1.15; }
 .tuile .v small { display: block; font-size: 12px; font-weight: 300; color: var(--gris); margin-top: 2px; }
 
-.corps { display: grid; grid-template-columns: 1.35fr 1fr; gap: 44px; margin-top: 40px; }
+/* Les 4 blocs en carré : Le bien | Conditions, puis Caractéristiques | Situation, hauts et bas alignés */
+.corps { display: grid; grid-template-columns: 1.35fr 1fr; gap: 36px 44px; margin-top: 40px; }
+.c-caract, .c-situ { display: flex; flex-direction: column; }
+.c-caract table { flex: 1; }
+.c-caract tr:last-child td { border-bottom: 1px solid var(--carte); }
+.c-situ .carte { position: relative; flex: 1; min-height: 220px; margin-top: 12px; border: 1px solid var(--carte); overflow: hidden; }
+.c-situ .carte img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.c-situ .legende { position: absolute; left: 0; right: 0; bottom: 0; margin: 0; padding: 6px 10px; background: rgba(255,255,255,.92); }
 h3.sec { font-weight: 700; font-size: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--filet); display: flex; align-items: center; gap: 10px; }
 .texte { color: var(--gris); margin-top: 14px; white-space: pre-line; font-size: 16px; line-height: 1.65; }
 .puces { list-style: none; margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px 18px; }
@@ -160,22 +167,10 @@ td.v { color: var(--bleu); font-weight: 700; padding-left: 12px; text-align: rig
 .dpe { display: inline-flex; gap: 2px; align-items: center; }
 .dpe span { width: 19px; height: 17px; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 10px; color: #fff; opacity: .3; }
 .dpe span.oui { opacity: 1; width: 25px; height: 22px; font-size: 13px; }
-.encart .liens { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--carte); }
+.c-cond .liens { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--carte); }
 .ref { font-size: 12px; color: var(--gris); }
-.situation { margin-top: 32px; }
-.corps > div:last-child { display: flex; flex-direction: column; }
-.corps > div:last-child .situation { flex: 1; display: flex; flex-direction: column; }
-.corps > div:last-child .situation .carte { flex: 1; min-height: 200px; overflow: hidden; }
-.corps > div:last-child .situation .carte img { width: 100%; height: 100%; object-fit: cover; }
-/* et si c'est la colonne de droite la plus haute, les caractéristiques s'espacent jusqu'en bas */
-.corps > div:first-child { display: flex; flex-direction: column; }
-.corps > div:first-child .caract { flex: 1; display: flex; flex-direction: column; }
-.corps > div:first-child .caract table { flex: 1; }
-.caract tr:last-child td { border-bottom: 1px solid var(--carte); }
-.situation .carte .legende { position: absolute; left: 0; right: 0; bottom: 0; margin: 0; padding: 6px 10px; background: rgba(255,255,255,.92); }
-.caract { margin-top: 32px; }
-.situation .carte { position: relative; margin-top: 12px; border: 1px solid var(--carte); }
-.situation .carte img { width: 100%; }
+
+
 .legende { font-size: 12px; color: var(--gris); margin-top: 6px; }
 
 /* Réponse du client, bien en vue */
@@ -246,7 +241,8 @@ footer .note { color: rgba(255,255,255,.8); margin-bottom: 10px; }
   .carte-bien { scroll-snap-align: start; }
 }
 @media (max-width: 900px) {
-  .corps > div:last-child .situation .carte { flex: none; min-height: 0; } .corps > div:first-child .caract table { flex: none; } .corps > div:last-child .situation .carte img { height: auto; }
+  .c-bien { order: 1; } .c-caract { order: 2; } .c-cond { order: 3; } .c-situ { order: 4; }
+  .c-caract table { flex: none; } .c-situ .carte { flex: none; min-height: 0; aspect-ratio: 2 / 1; }
   .hero .fond { width: 300px; right: -110px; opacity: .5; }
   .hero .fond2 { display: none; }
   .corps, .agence .dedans { grid-template-columns: 1fr; gap: 32px; }
@@ -435,13 +431,13 @@ footer .filet { display: none; } body.da footer .filet { display: block; }
       ${mosaique(b.photos || [], n)}
       <div class="tuiles">${(b.tuiles || []).map((t) => `<div class="tuile"><div class="lbl">${e(t.k)}</div><div class="v">${e(t.v)}${t.u ? `<small>${e(t.u)}</small>` : ""}</div></div>`).join("")}</div>
       <div class="corps">
-        <div><h3 class="sec"><span class="losange"></span>Le bien</h3>${b.description ? `<p class="texte">${e(b.description)}</p>` : ""}
-          ${(b.equipements || []).length ? `<ul class="puces">${b.equipements.map((x) => `<li>${e(x)}</li>`).join("")}</ul>` : ""}
-          ${(b.caracteristiques || []).length ? `<div class="caract"><h3 class="sec"><span class="losange"></span>Caractéristiques</h3><table><tbody>${b.caracteristiques.map((x) => `<tr><td>${e(x.k)}</td><td class="v">${e(x.v)}</td></tr>`).join("")}</tbody></table></div>` : ""}</div>
-        <div><div class="encart"><h3 class="sec"><span class="losange"></span>${e(b.titre_conditions)}</h3><table><tbody>${(b.conditions || []).map((x) => `<tr><td>${e(x.k)}</td><td class="v">${e(x.v)}</td></tr>`).join("")}
+        <div class="c-bien"><h3 class="sec"><span class="losange"></span>Le bien</h3>${b.description ? `<p class="texte">${e(b.description)}</p>` : ""}
+          ${(b.equipements || []).length ? `<ul class="puces">${b.equipements.map((x) => `<li>${e(x)}</li>`).join("")}</ul>` : ""}</div>
+        <div class="c-cond"><h3 class="sec"><span class="losange"></span>${e(b.titre_conditions)}</h3><table><tbody>${(b.conditions || []).map((x) => `<tr><td>${e(x.k)}</td><td class="v">${e(x.v)}</td></tr>`).join("")}
           ${b.dpe ? `<tr><td>DPE</td><td class="v">${b.dpe_lettre ? `<span class="dpe">${LETTRES.map(([l, c]) => `<span class="${l === b.dpe_lettre ? "oui" : ""}" style="background:${c}">${l}</span>`).join("")}</span>` : e(b.dpe)}</td></tr>` : ""}</tbody></table>
           <div class="liens">${b.fiche ? `<a class="btn discret" href="${e(b.fiche)}" download="${e(b.fiche_nom || "Fiche du bien.pdf")}" target="_blank" rel="noopener">${ICONES.pdf}Fiche du bien (PDF)</a>` : ""}${b.reference ? `<span class="ref">Référence ${e(b.reference)}</span>` : ""}</div></div>
-          ${b.carte ? `<div class="situation"><h3 class="sec"><span class="losange"></span>Situation</h3><div class="carte"><img src="${e(b.carte)}" alt="Zone approximative du bien" loading="lazy"><p class="legende">Zone approximative${b.accroche ? " · " + e(b.accroche) : ""} · l'adresse exacte vous est communiquée lors de la visite</p></div></div>` : ""}</div>
+        <div class="c-caract">${(b.caracteristiques || []).length ? `<h3 class="sec"><span class="losange"></span>Caractéristiques</h3><table><tbody>${b.caracteristiques.map((x) => `<tr><td>${e(x.k)}</td><td class="v">${e(x.v)}</td></tr>`).join("")}</tbody></table>` : ""}</div>
+        <div class="c-situ">${b.carte ? `<h3 class="sec"><span class="losange"></span>Situation</h3><div class="carte"><img src="${e(b.carte)}" alt="Zone approximative du bien" loading="lazy"><p class="legende">Zone approximative${b.accroche ? " · " + e(b.accroche) : ""} · l'adresse exacte vous est communiquée lors de la visite</p></div>` : ""}</div>
       </div>
       <div class="reponse"><img class="losange-fond" src="losange.png" alt=""><div class="dedans-r">
         <div class="q">Ce bien vous intéresse ?<small>Un clic suffit, votre conseiller est prévenu tout de suite.</small></div>
