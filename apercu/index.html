@@ -97,7 +97,6 @@ a { color: inherit; }
 .cartes.serre .txt { padding: 14px 14px 16px; }
 .cartes.serre h3 { font-size: 16px; }
 .cartes.serre .sur { letter-spacing: .06em; font-size: 9.5px; }
-.cartes.serre .prix { flex-direction: column; align-items: flex-start; gap: 2px; }
 .carte-bien { background: #fff; text-decoration: none; display: flex; flex-direction: column; border-bottom: 3px solid transparent; transition: transform .15s, box-shadow .15s, border-color .15s; }
 .carte-bien:hover { transform: translateY(-3px); box-shadow: 0 14px 30px rgba(0,27,77,.12); border-color: var(--accent); }
 .carte-bien .img { aspect-ratio: 1600 / 1040; background: var(--carte) center / cover no-repeat; position: relative; }
@@ -107,9 +106,13 @@ a { color: inherit; }
 .carte-bien .sur { font-weight: 700; font-size: 10px; letter-spacing: .14em; color: var(--accent); text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .carte-bien h3 { font-weight: 700; font-size: 18px; line-height: 1.25; margin-top: 4px; min-height: 2.5em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .carte-bien .ville { color: var(--gris); font-size: 14px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.carte-bien .prix { margin-top: auto; padding-top: 14px; display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: 14px; border-top: 1px solid var(--carte); margin-top: 14px; }
-.carte-bien .prix b { font-size: 17px; }
-.carte-bien .prix small { font-size: 11px; color: var(--gris); }
+/* Surface et loyer (ou prix) en deux petites tuiles, comme les chiffres clés de la fiche */
+.carte-bien .prix { margin-top: auto; padding-top: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.carte-bien .prix > div { background: #fff; padding: 9px 10px 8px; min-width: 0; }
+.carte-bien .prix .lbl { font-size: 9px; letter-spacing: .12em; }
+.carte-bien .prix b { display: block; font-size: 16px; margin-top: 3px; line-height: 1.15; white-space: nowrap; }
+.carte-bien .prix small { display: block; font-size: 10.5px; color: var(--gris); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+body:not(.da) .carte-bien .prix > div { background: var(--tuile); }
 .carte-bien .etat { font-size: 12px; font-weight: 700; color: var(--ok); margin-top: 8px; }
 .carte-bien .etat:empty { display: none; }
 
@@ -160,6 +163,16 @@ td.v { color: var(--bleu); font-weight: 700; padding-left: 12px; text-align: rig
 .encart .liens { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--carte); }
 .ref { font-size: 12px; color: var(--gris); }
 .situation { margin-top: 32px; }
+.corps > div:last-child { display: flex; flex-direction: column; }
+.corps > div:last-child .situation { flex: 1; display: flex; flex-direction: column; }
+.corps > div:last-child .situation .carte { flex: 1; min-height: 200px; overflow: hidden; }
+.corps > div:last-child .situation .carte img { width: 100%; height: 100%; object-fit: cover; }
+/* et si c'est la colonne de droite la plus haute, les caractéristiques s'espacent jusqu'en bas */
+.corps > div:first-child { display: flex; flex-direction: column; }
+.corps > div:first-child .caract { flex: 1; display: flex; flex-direction: column; }
+.corps > div:first-child .caract table { flex: 1; }
+.caract tr:last-child td { border-bottom: 1px solid var(--carte); }
+.situation .carte .legende { position: absolute; left: 0; right: 0; bottom: 0; margin: 0; padding: 6px 10px; background: rgba(255,255,255,.92); }
 .caract { margin-top: 32px; }
 .situation .carte { position: relative; margin-top: 12px; border: 1px solid var(--carte); }
 .situation .carte img { width: 100%; }
@@ -233,6 +246,7 @@ footer .note { color: rgba(255,255,255,.8); margin-bottom: 10px; }
   .carte-bien { scroll-snap-align: start; }
 }
 @media (max-width: 900px) {
+  .corps > div:last-child .situation .carte { flex: none; min-height: 0; } .corps > div:first-child .caract table { flex: none; } .corps > div:last-child .situation .carte img { height: auto; }
   .hero .fond { width: 300px; right: -110px; opacity: .5; }
   .hero .fond2 { display: none; }
   .corps, .agence .dedans { grid-template-columns: 1fr; gap: 32px; }
@@ -404,7 +418,7 @@ footer .filet { display: none; } body.da footer .filet { display: block; }
     const p = prixDe(b), s = surfaceDe(b);
     return `<a class="carte-bien" href="#bien-${n}"><div class="img" style="background-image:url('${e((b.photos || [])[0] || "")}')"><span class="num">${num(n)}</span></div>
       <div class="txt"><div class="sur">${e(b.surtitre)}</div><h3>${e(b.titre)}</h3><div class="ville">${e(b.accroche)}</div>
-      <div class="prix"><span>${s ? e(s.v) : ""}</span>${p ? `<span><b>${e(p.v)}</b> <small>${e(p.u || "")}</small></span>` : ""}</div>
+      <div class="prix">${s ? `<div><span class="lbl">${e(s.k)}</span><b>${e(s.v)}</b></div>` : ""}${p ? `<div><span class="lbl">${e(p.k)}</span><b>${e(p.v)}</b>${p.u ? `<small>${e(p.u)}</small>` : ""}</div>` : ""}</div>
       <div class="etat" data-etat="${n}">${e(ETATS[reponse] || "")}</div></div></a>`;
   }
 
@@ -427,7 +441,7 @@ footer .filet { display: none; } body.da footer .filet { display: block; }
         <div><div class="encart"><h3 class="sec"><span class="losange"></span>${e(b.titre_conditions)}</h3><table><tbody>${(b.conditions || []).map((x) => `<tr><td>${e(x.k)}</td><td class="v">${e(x.v)}</td></tr>`).join("")}
           ${b.dpe ? `<tr><td>DPE</td><td class="v">${b.dpe_lettre ? `<span class="dpe">${LETTRES.map(([l, c]) => `<span class="${l === b.dpe_lettre ? "oui" : ""}" style="background:${c}">${l}</span>`).join("")}</span>` : e(b.dpe)}</td></tr>` : ""}</tbody></table>
           <div class="liens">${b.fiche ? `<a class="btn discret" href="${e(b.fiche)}" download="${e(b.fiche_nom || "Fiche du bien.pdf")}" target="_blank" rel="noopener">${ICONES.pdf}Fiche du bien (PDF)</a>` : ""}${b.reference ? `<span class="ref">Référence ${e(b.reference)}</span>` : ""}</div></div>
-          ${b.carte ? `<div class="situation"><h3 class="sec"><span class="losange"></span>Situation</h3><div class="carte"><img src="${e(b.carte)}" alt="Zone approximative du bien" loading="lazy"></div><p class="legende">Zone approximative${b.accroche ? " · " + e(b.accroche) : ""} · l'adresse exacte vous est communiquée lors de la visite</p></div>` : ""}</div>
+          ${b.carte ? `<div class="situation"><h3 class="sec"><span class="losange"></span>Situation</h3><div class="carte"><img src="${e(b.carte)}" alt="Zone approximative du bien" loading="lazy"><p class="legende">Zone approximative${b.accroche ? " · " + e(b.accroche) : ""} · l'adresse exacte vous est communiquée lors de la visite</p></div></div>` : ""}</div>
       </div>
       <div class="reponse"><img class="losange-fond" src="losange.png" alt=""><div class="dedans-r">
         <div class="q">Ce bien vous intéresse ?<small>Un clic suffit, votre conseiller est prévenu tout de suite.</small></div>
