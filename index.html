@@ -479,18 +479,18 @@ footer .filet { display: none; } body.da footer .filet { display: block; }
     const haut = `<section class="doc"><div class="carre"></div><div class="points"></div><div class="barre"></div><div class="dedans">
         <img class="logo" src="logo_mosaic.png" alt="MOSAIC Immobilier d'entreprise">
         <div class="surtitre">Sélection privée · ${e(s.contenu?.client || "pour vous")}</div>
-        <h1>Votre sélection de ${biens.length} biens</h1>
+        <h1>${biens.length > 1 ? `Votre sélection de ${biens.length} biens` : "Le bien choisi pour vous"}</h1>
         <p class="sous">Choisis pour vous d'après votre recherche</p>
-        <div class="tuiles-doc"><div><span class="lbl">Biens</span><b>${biens.length} sélectionnés</b></div><div><span class="lbl">Secteur${villes.length > 1 ? "s" : ""}</span><b>${villes.length || "-"}</b></div>
+        <div class="tuiles-doc"><div><span class="lbl">Biens</span><b>${biens.length} sélectionné${biens.length > 1 ? "s" : ""}</b></div><div><span class="lbl">Secteur${villes.length > 1 ? "s" : ""}</span><b>${villes.length || "-"}</b></div>
           <div><span class="lbl">En ligne jusqu'au</span><b>${e(date(s.expire_le))}</b></div><div><span class="lbl">Votre réponse</span><b>En un clic</b></div></div>
         ${c.nom ? `<div class="bandeau"><div><div class="lbl">Votre conseiller</div><div class="nom">${e(c.nom)}</div><div class="coord">${[c.telephone ? `<a href="${telLien(c.telephone)}">${e(c.telephone)}</a>` : "", c.email ? `<a href="mailto:${e(c.email)}">${e(c.email)}</a>` : ""].filter(Boolean).join(" · ")}</div></div>
-          <div class="boutons"><a class="btn accent" href="#biens">Découvrir la sélection</a></div></div>` : ""}
+          <div class="boutons"><a class="btn accent" href="${biens.length > 1 ? "#biens" : "#bien-1"}">${biens.length > 1 ? "Découvrir la sélection" : "Découvrir le bien"}</a></div></div>` : ""}
       </div></section>`;
     // Le bandeau du haut n'apparaît qu'une fois l'en-tête dépassé : la page s'ouvre comme un document MOSAIC
     const suivre = () => document.body.classList.toggle("defile", scrollY > 420);
     addEventListener("scroll", suivre, { passive: true }); suivre();
     page.innerHTML = `${haut}
-      <section class="sommaire" id="biens"><div class="dedans">
+      <section class="sommaire" id="biens"${biens.length > 1 ? "" : " hidden"}><div class="dedans">
         <div class="titre-section"><div><div class="lbl">En un coup d'œil</div><h2>Votre sélection</h2></div><p>Chaque bien a été choisi pour vos critères. Touchez une carte pour voir le détail.</p></div>
         <div class="cartes${biens.length > 4 ? " serre" : ""}" style="--col:${Math.max(4, biens.length)}">${biens.map((b, i) => carte(b, i + 1, reponses[i] || "", visites[i])).join("")}</div>
       </div></section>
@@ -604,7 +604,12 @@ footer .filet { display: none; } body.da footer .filet { display: block; }
       }
     }
   }
-  demarrer();
+  // Lien « Choisir un créneau de visite » du mail (…&visite=1) : la page s'ouvre sur les créneaux du bien
+  demarrer().then(() => {
+    const n = Number(new URLSearchParams(location.search).get("visite") || 0);
+    const b = n && document.querySelector(`#bien-${n} [data-reponse="visite"]`);
+    if (b) { document.getElementById(`bien-${n}`).scrollIntoView({ block: "start" }); b.click(); }
+  });
 })();
 </script>
 </body>
