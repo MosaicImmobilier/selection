@@ -318,6 +318,56 @@ footer .filet { display: none; } body.da footer .filet { display: block; }
   .doc .bandeau { margin-left: -16px; margin-right: -16px; padding: 22px 16px; } .doc .bandeau .boutons, .doc .bandeau .btn { width: 100%; }
   body.da .bien h2 { font-size: 26px; } body.da h3.sec { font-size: 20px; }
 }
+/* Bon de visite (1.25.0) : page ?bon=… signée par le client avant la visite (ou sur le téléphone du conseiller, sur place) */
+.bv { max-width: 860px; margin: 0 auto; padding: 0 24px 72px; }
+.bv-bloc { margin-top: 36px; }
+.bv-bloc > h2 { font-weight: 700; font-size: 22px; padding-bottom: 10px; border-bottom: 1px solid var(--filet); display: flex; align-items: center; gap: 10px; }
+.bv-bien { display: grid; grid-template-columns: 1fr auto; gap: 6px 20px; padding: 18px 20px; background: var(--tuile); margin-top: 14px; border-left: 3px solid var(--accent); }
+.bv-bien h3 { font-weight: 700; font-size: 19px; line-height: 1.25; }
+.bv-bien .sous { color: var(--gris); font-size: 15px; }
+.bv-bien .prix { font-weight: 700; font-size: 18px; text-align: right; white-space: nowrap; }
+.bv-bien .prix small { display: block; font-weight: 300; font-size: 12px; color: var(--gris); }
+.bv-bien .quand { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--bleu); }
+.bv-bien .quand svg { width: 16px; height: 16px; color: var(--accent); flex: none; }
+.bv-bien .adresse { grid-column: 1 / -1; font-size: 15px; }
+.bv-bien .adresse b { color: var(--ok); }
+.bv-bien .question { grid-column: 1 / -1; margin-top: 8px; padding-top: 12px; border-top: 1px solid var(--carte); display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; font-size: 15px; }
+.bv-oui-non { display: inline-flex; border: 1px solid var(--filet); background: #fff; }
+.bv-oui-non label { cursor: pointer; padding: 8px 18px; font-weight: 700; font-size: 14px; }
+.bv-oui-non label + label { border-left: 1px solid var(--filet); }
+.bv-oui-non input { position: absolute; opacity: 0; pointer-events: none; }
+.bv-oui-non label:has(input:checked) { background: var(--bleu); color: #fff; }
+.bv-oui-non label:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+.bv-champs { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 18px; margin-top: 18px; }
+.bv-champs label { display: block; font-size: 13px; color: var(--gris); }
+.bv-champs input, .bv-champs select { display: block; width: 100%; margin-top: 5px; font: inherit; font-size: 16px; color: var(--bleu); padding: 11px 12px; border: 1px solid var(--filet); background: #fff; border-radius: 0; }
+.bv-champs input:focus, .bv-champs select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,159,226,.18); }
+.bv-champs input[readonly] { background: var(--tuile); }
+.bv-champs .plein-l { grid-column: 1 / -1; }
+.bv-clause { margin-top: 16px; padding: 18px 20px; border: 1px solid var(--carte); color: var(--bleu); font-size: 15px; line-height: 1.65; }
+.bv-clause + .bv-clause { margin-top: 10px; }
+.bv-clause .lbl { display: block; margin-bottom: 6px; }
+.bv-sig { position: relative; margin-top: 16px; border: 1px dashed var(--filet); background: #fff; touch-action: none; }
+.bv-sig canvas { display: block; width: 100%; height: 190px; cursor: crosshair; }
+.bv-sig .vide { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--filet); font-size: 18px; pointer-events: none; }
+.bv-sig .vide[hidden] { display: none; }
+.bv-sig .effacer { position: absolute; right: 8px; top: 8px; font: inherit; font-size: 13px; background: #fff; border: 1px solid var(--filet); color: var(--gris); padding: 5px 10px; cursor: pointer; }
+.bv-accord { display: flex; gap: 12px; align-items: flex-start; margin-top: 18px; font-size: 15px; cursor: pointer; }
+.bv-accord input { width: 20px; height: 20px; margin-top: 2px; accent-color: var(--bleu); flex: none; }
+.bv-preuve { margin-top: 10px; font-size: 13px; color: var(--gris); }
+.bv-valider { margin-top: 22px; display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }
+.bv-valider .btn { min-width: 260px; }
+.bv-erreur { color: #B3261E; font-weight: 700; font-size: 14px; }
+.bv-signe { display: flex; gap: 14px; align-items: flex-start; padding: 18px 20px; background: #E5F4EC; color: var(--ok); margin-top: 28px; }
+.bv-signe svg { width: 26px; height: 26px; flex: none; }
+.bv-signe b { display: block; font-size: 18px; }
+.bv-signe span { color: var(--bleu); font-size: 15px; }
+.visite-etat .lien-bon { display: inline-flex; margin-top: 10px; }
+@media (max-width: 640px) {
+  .bv { padding: 0 16px 56px; } .bv-champs { grid-template-columns: 1fr; }
+  .bv-bien { grid-template-columns: 1fr; } .bv-bien .prix { text-align: left; }
+  .bv-valider .btn { width: 100%; min-width: 0; }
+}
 </style>
 </head>
 <body class="da">
@@ -346,7 +396,8 @@ footer .filet { display: none; } body.da footer .filet { display: block; }
   "use strict";
   const C = window.SELECTION_CONFIG || {};
   const page = document.getElementById("page");
-  const jeton = new URLSearchParams(location.search).get("s") || "";
+  const params = new URLSearchParams(location.search);
+  const jeton = params.get("s") || "", jetonBon = params.get("bon") || "";
   // L'espace fine des nombres (150 000 €, U+202F) n'existe pas dans la police Aftika : remplacée par une espace insécable ordinaire
   const e = (t) => String(t ?? "").replace(/\u202f/g, "\u00a0").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const date = (d) => new Date(d).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
@@ -396,6 +447,8 @@ footer .filet { display: none; } body.da footer .filet { display: block; }
       <span class="choix-horaire"><button type="button" class="btn accent petit" data-accepter>Accepter cet horaire</button><button type="button" class="lien-clair" data-autre>Choisir un autre créneau</button></span>`];
     if (v.statut === "demande" && !v.expiree) return ["attente", `<b>Visite demandée ${e(quandDe(v.debut))}</b><small>En attente de confirmation : votre conseiller vérifie avec le propriétaire, puis vous confirme la visite par mail.</small>`];
     if (v.statut === "demande") return ["ko", `<b>Votre demande ${e(quandDe(v.debut))} n'a pas pu être confirmée à temps</b><small>Votre conseiller vous recontacte. Vous pouvez aussi choisir un autre créneau.</small>`];
+    if (v.statut === "confirme" && v.bon && !v.bon_signe && !v.adresse) return ["ok", `<b>Visite confirmée ${e(quandDe(v.debut))}</b><small>Avant la visite, signez votre bon de visite en ligne : l'adresse exacte s'affiche dès la signature. Un empêchement ? Prévenez votre conseiller.</small>
+      <a class="btn accent petit lien-bon" href="?bon=${encodeURIComponent(v.bon)}">Signer mon bon de visite</a>`];
     if (v.statut === "confirme") return ["ok", `<b>Visite confirmée ${e(quandDe(v.debut))}</b><small>${v.adresse ? `Rendez-vous au ${e(v.adresse)}.` : "L'adresse exacte vous est envoyée par mail la veille de la visite."} Un empêchement ? Prévenez votre conseiller.</small>`];
     if (v.statut === "effectue") return ["ok", `<b>Visite faite ${e(quandDe(v.debut))}</b><small>Merci ! Votre conseiller revient vers vous.</small>`];
     return ["ko", `<b>La visite ${e(quandDe(v.debut))} est annulée</b><small>Choisissez un autre créneau, ou appelez votre conseiller.</small>`];
@@ -605,8 +658,130 @@ footer .filet { display: none; } body.da footer .filet { display: block; }
       }
     }
   }
+  // ---------- Bon de visite (1.25.0) : ?bon=… ----------
+  // Le client confirme que MOSAIC lui présente le bien (ou les biens d'une même tournée) et signe ; l'adresse exacte s'affiche
+  // dès la signature. Le texte signé est recalculé et figé par la base, jamais celui de la page. « &sur_place=1 » : lien ouvert
+  // sur le téléphone du conseiller, au moment de la visite.
+  const FORMES = ["SAS", "SASU", "SARL", "EURL", "SA", "SCI", "SNC", "SELARL", "Association", "Autre"];
+  const CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="10"/><path d="m7.5 12.5 3 3 6-6.5"/></svg>';
+  const euros = (n) => Number(n).toLocaleString("fr-FR", { maximumFractionDigits: 0 }) + " €";
+  const designation = (b) => [b.type || "Bien", b.surface ? `de ${Number(b.surface).toLocaleString("fr-FR")} m²` : "", b.ville ? `à ${b.ville}` : ""].filter(Boolean).join(" ");
+  const adresseDe = (b) => [b.adresse, [b.code_postal, b.ville].filter(Boolean).join(" ")].filter((x) => String(x || "").trim()).join(", ");
+  function carteBon(x, i, signe) {
+    const b = x.contenu.bien || {}, v = x.visite;
+    const prix = b.operation === "vente" ? (b.prix ? [euros(b.prix), "Prix de vente"] : null) : (b.loyer_mois ? [euros(b.loyer_mois), "HT HC par mois"] : null);
+    const adr = adresseDe(b);
+    return `<div class="bv-bien"><div><div class="lbl">${b.operation === "vente" ? "À vendre" : "À louer"}${b.mandat ? ` · Mandat ${e(b.mandat)}` : ""}</div><h3>${e(designation(b))}</h3>${b.secteur ? `<div class="sous">${e(b.secteur)}</div>` : ""}</div>
+      ${prix ? `<div class="prix">${e(prix[0])}<small>${e(prix[1])}</small></div>` : "<div></div>"}
+      ${v?.debut ? `<div class="quand">${ICONES.horloge}Visite ${e(quandDe(v.debut))}${v.statut === "annule" ? " (annulée)" : ""}</div>` : ""}
+      ${signe || x.adresse_donnee ? (b.adresse ? `<div class="adresse">Adresse exacte : <b>${e(adr)}</b></div>` : "") : `<div class="adresse">${ICONES.lieu.replace("<svg", '<svg width="15" height="15" style="vertical-align:-2px;color:var(--accent)"')} L'adresse exacte s'affiche dès la signature.</div>`}
+      ${signe ? "" : `<div class="question"><span>Ce bien vous a-t-il déjà été présenté par une autre agence ?</span>
+        <span class="bv-oui-non" role="radiogroup"><label><input type="radio" name="autre_${i}" value="non">Non</label><label><input type="radio" name="autre_${i}" value="oui">Oui</label></span></div>`}</div>`;
+  }
+  async function pageBon() {
+    if (!/^[A-Za-z0-9_-]{20,40}$/.test(jetonBon)) return message("Lien incomplet", "Ce lien n'est pas complet. Ouvrez-le directement depuis le mail de votre conseiller MOSAIC.");
+    let x;
+    try { x = await rpc("bon_public", { p_jeton: jetonBon }); }
+    catch (err) { return message("Bon de visite indisponible", e(err.message)); }
+    if (x.introuvable) return message("Lien inconnu", "Ce lien ne correspond à aucun bon de visite. Ouvrez-le directement depuis le mail de votre conseiller MOSAIC.");
+    if (x.annule) return message("Ce bon de visite n'est plus valable", "Votre conseiller MOSAIC vous enverra un nouveau lien si besoin.");
+    // Tournée : les autres bons du même jour se signent en même temps
+    const bons = [x];
+    for (const j of x.autres || []) { try { const y = await rpc("bon_public", { p_jeton: j }); if (y.statut === "a_signer") bons.push({ ...y, jeton: j }); } catch (err) { /* ce bon reste à signer depuis son propre lien */ } }
+    bons[0].jeton = jetonBon;
+    const c = x.contenu?.conseiller || {}, vi = x.contenu?.visiteur || {};
+    if (c.telephone) document.getElementById("tel_haut").href = telLien(c.telephone);
+    if (c.nom) document.getElementById("qui_haut").innerHTML = `Votre conseiller<b>${e(c.nom)}</b>`;
+    const suivre = () => document.body.classList.toggle("defile", scrollY > 420);
+    addEventListener("scroll", suivre, { passive: true }); suivre();
+    const plusieurs = bons.length > 1;
+    document.title = `Bon de visite · MOSAIC Immobilier d'entreprise`;
+    const tete = (titre, sous) => `<section class="doc"><div class="carre"></div><div class="points"></div><div class="barre"></div><div class="dedans">
+        <img class="logo" src="logo_mosaic.png" alt="MOSAIC Immobilier d'entreprise">
+        <div class="surtitre">Bon de visite · ${e(vi.societe || "votre société")}</div><h1>${titre}</h1><p class="sous">${sous}</p></div></section>`;
+
+    if (x.statut === "signe") {
+      page.innerHTML = `${tete("Votre bon de visite est signé", `Bon ${e(x.reference)}, signé le ${e(date(x.signe_le))}${x.signataire?.nom ? ` par ${e(x.signataire.nom)}` : ""}.`)}
+        <div class="bv"><div class="bv-signe">${CHECK}<div><b>Merci, c'est signé.</b><span>Une copie du bon vous est envoyée par mail. Votre conseiller vous retrouvera sur place.</span></div></div>
+        <div class="bv-bloc"><h2><span class="losange"></span>Le bien</h2>${carteBon(x, 0, true)}</div>
+        <div class="bv-bloc">${blocConseiller(c)}</div></div>`;
+      return;
+    }
+
+    page.innerHTML = `${tete(plusieurs ? `Vos ${bons.length} bons de visite` : "Votre bon de visite", `Avant la visite, merci de confirmer que MOSAIC vous présente ${plusieurs ? "ces biens" : "ce bien"}. L'adresse exacte s'affiche dès la signature. Une minute suffit.`)}
+      <div class="bv">
+        <div class="bv-bloc"><h2><span class="losange"></span>${plusieurs ? "Les biens présentés" : "Le bien présenté"}</h2>${bons.map((b, i) => carteBon(b, i, false)).join("")}</div>
+        <div class="bv-bloc"><h2><span class="losange"></span>Votre société</h2>
+          <div class="bv-champs">
+            <label class="plein-l">Société<input value="${e(vi.societe)}" readonly></label>
+            <label>Forme juridique<select id="bv_forme"><option value="">Choisir…</option>${FORMES.map((f) => `<option${f === vi.forme ? " selected" : ""}>${f}</option>`).join("")}${vi.forme && !FORMES.includes(vi.forme) ? `<option selected>${e(vi.forme)}</option>` : ""}</select></label>
+            <label>SIREN (9 chiffres)<input id="bv_siren" inputmode="numeric" autocomplete="off" value="${e(vi.siren)}" placeholder="123 456 789"></label>
+            <label>Vos nom et prénom<input id="bv_nom" autocomplete="name" value="${e(vi.representant)}"></label>
+            <label>Votre fonction dans la société<input id="bv_fonction" autocomplete="organization-title" value="${e(vi.fonction)}" placeholder="Gérant, Président, Directeur…"></label>
+          </div></div>
+        <div class="bv-bloc"><h2><span class="losange"></span>Votre engagement</h2>
+          ${new Set(bons.map((b) => b.contenu.clause)).size > 1 ? bons.map((b) => `<div class="bv-clause"><span class="lbl">${e(designation(b.contenu.bien))}</span>${e(b.contenu.clause)}</div>`).join("") : `<div class="bv-clause">${e(bons[0].contenu.clause)}</div>`}</div>
+        <div class="bv-bloc"><h2><span class="losange"></span>Votre signature</h2>
+          <div class="bv-sig"><canvas id="bv_canvas" aria-label="Cadre de signature"></canvas><div class="vide" id="bv_vide">Signez ici, au doigt ou à la souris</div><button type="button" class="effacer" id="bv_effacer">Effacer</button></div>
+          <label class="bv-accord"><input type="checkbox" id="bv_accepte"><span>J'ai lu et j'accepte l'engagement ci-dessus, au nom de la société ${e(vi.societe)}.</span></label>
+          <p class="bv-preuve">Signature électronique : la date, l'heure, votre adresse IP et votre navigateur sont enregistrés comme preuve. Une copie du bon signé vous est envoyée par mail.</p>
+          <div class="bv-valider"><button type="button" class="btn accent" id="bv_signer">${plusieurs ? `Signer les ${bons.length} bons de visite` : "Signer le bon de visite"}</button><span class="bv-erreur" id="bv_erreur" role="alert"></span></div></div>
+        <div class="bv-bloc">${blocConseiller(c)}</div>
+      </div>`;
+
+    // Cadre de signature : doigt, stylet ou souris
+    const cv = document.getElementById("bv_canvas"), vide = document.getElementById("bv_vide"), ctx = cv.getContext("2d");
+    let traits = 0, pose = null;
+    const regler = () => { const r = cv.getBoundingClientRect(), d = Math.min(devicePixelRatio || 1, 2); cv.width = r.width * d; cv.height = r.height * d; ctx.setTransform(d, 0, 0, d, 0, 0); ctx.lineWidth = 2.2; ctx.lineCap = ctx.lineJoin = "round"; ctx.strokeStyle = "#001B4D"; traits = 0; vide.hidden = false; };
+    regler();
+    const point = (ev) => { const r = cv.getBoundingClientRect(); return [ev.clientX - r.left, ev.clientY - r.top]; };
+    cv.addEventListener("pointerdown", (ev) => { ev.preventDefault(); cv.setPointerCapture(ev.pointerId); pose = point(ev); ctx.beginPath(); ctx.moveTo(...pose); vide.hidden = true; });
+    cv.addEventListener("pointermove", (ev) => { if (!pose) return; const p = point(ev); ctx.lineTo(...p); ctx.stroke(); traits++; pose = p; });
+    const lever = () => { pose = null; };
+    cv.addEventListener("pointerup", lever); cv.addEventListener("pointercancel", lever);
+    document.getElementById("bv_effacer").onclick = () => { ctx.clearRect(0, 0, cv.width, cv.height); traits = 0; vide.hidden = false; };
+    let largeurCadre = cv.getBoundingClientRect().width;
+    addEventListener("resize", () => { const w = cv.getBoundingClientRect().width; if (Math.abs(w - largeurCadre) > 30 && !traits) { largeurCadre = w; regler(); } });
+    // Image envoyée : au plus 900 px de large
+    const image = () => { const r = Math.min(1, 900 / cv.width), o = document.createElement("canvas"); o.width = Math.round(cv.width * r); o.height = Math.round(cv.height * r); o.getContext("2d").drawImage(cv, 0, 0, o.width, o.height); return o.toDataURL("image/png"); };
+
+    const bouton = document.getElementById("bv_signer"), erreur = document.getElementById("bv_erreur");
+    bouton.onclick = async () => {
+      erreur.textContent = "";
+      const val = (id) => document.getElementById(id).value.trim();
+      const reponses = bons.map((b, i) => page.querySelector(`input[name="autre_${i}"]:checked`)?.value);
+      // SIREN : 9 chiffres et clé de contrôle (une faute de frappe se voit tout de suite) ; la base vérifie ensuite qu'il est bien celui de la société
+      const siren = val("bv_siren").replace(/\D/g, "");
+      const cle = siren.length === 9 && [...siren].reverse().reduce((t, c, i) => { const d = Number(c) * (i % 2 ? 2 : 1); return t + (d > 9 ? d - 9 : d); }, 0) % 10 === 0;
+      const manque = !val("bv_forme") ? "Choisissez la forme juridique de la société." : siren.length !== 9 ? "Le SIREN de la société compte 9 chiffres."
+        : !cle ? "Ce SIREN n'existe pas : vérifiez les 9 chiffres (sur votre Kbis, par exemple)."
+        : val("bv_nom").length < 3 ? "Indiquez vos nom et prénom." : val("bv_fonction").length < 2 ? "Indiquez votre fonction dans la société."
+        : reponses.some((r) => !r) ? `Répondez à la question « déjà présenté par une autre agence ? »${plusieurs ? " pour chaque bien" : ""}.`
+        : traits < 8 ? "Signez dans le cadre avant de valider." : !document.getElementById("bv_accepte").checked ? "Cochez « J'ai lu et j'accepte » pour signer." : "";
+      if (manque) { erreur.textContent = manque; return; }
+      bouton.disabled = true; bouton.textContent = "Signature en cours…";
+      const img = image();
+      try {
+        for (const [i, b] of bons.entries()) {
+          await rpc("bon_signer", { p_jeton: b.jeton, p_nom: val("bv_nom"), p_fonction: val("bv_fonction"), p_forme: val("bv_forme"), p_siren: val("bv_siren"),
+            p_image: img, p_autre_agence: reponses[i] === "oui", p_accepte: true, p_sur_place: params.get("sur_place") === "1" });
+        }
+      } catch (err) { bouton.disabled = false; bouton.textContent = plusieurs ? `Signer les ${bons.length} bons de visite` : "Signer le bon de visite"; erreur.textContent = err.message; return; }
+      // PDF et copie par mail tout de suite (sinon, au plus tard 5 minutes après)
+      fetch(`${C.supabaseUrl}/functions/v1/visites-mails`, { method: "POST", headers: { "Content-Type": "application/json", apikey: C.supabaseAnonKey, Authorization: `Bearer ${C.supabaseAnonKey}` }, body: JSON.stringify({ bon: true }) }).catch(() => {});
+      const signes = [];
+      for (const b of bons) { try { signes.push(await rpc("bon_public", { p_jeton: b.jeton })); } catch (err) { /* affiché sans */ } }
+      page.innerHTML = `${tete(plusieurs ? "Vos bons de visite sont signés" : "Votre bon de visite est signé", "Merci ! Voici l'adresse exacte. Une copie du bon signé vous est envoyée par mail.")}
+        <div class="bv"><div class="bv-signe">${CHECK}<div><b>Merci, c'est signé.</b><span>${signes.map((y) => `Bon ${e(y.reference)}`).join(", ")}. Votre conseiller vous retrouvera sur place.</span></div></div>
+        <div class="bv-bloc"><h2><span class="losange"></span>${plusieurs ? "Les biens" : "Le bien"}</h2>${signes.map((y, i) => carteBon(y, i, true)).join("")}</div>
+        <div class="bv-bloc">${blocConseiller(c)}</div></div>`;
+      scrollTo(0, 0);
+    };
+  }
+
   // Lien « Choisir un créneau de visite » du mail (…&visite=1) : la page s'ouvre sur les créneaux du bien
-  demarrer().then(() => {
+  if (jetonBon) pageBon();
+  else demarrer().then(() => {
     const n = Number(new URLSearchParams(location.search).get("visite") || 0);
     const b = n && document.querySelector(`#bien-${n} [data-reponse="visite"]`);
     if (b) { document.getElementById(`bien-${n}`).scrollIntoView({ block: "start" }); b.click(); }
