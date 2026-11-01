@@ -378,7 +378,7 @@ footer .filet { display: none; } body.da footer .filet { display: block; }
 <main id="page"><p class="chargement">Chargement de votre sélection…</p></main>
 <footer><div class="dedans"><div class="filet"><i></i></div>
   <div class="ligne"><img src="logo_mosaic_blanc.png" alt="MOSAIC Immobilier d'entreprise"><a class="site" href="https://www.mosaicimmobilier.com" target="_blank" rel="noopener">www.mosaicimmobilier.com</a></div>
-  <p class="note">Les adresses exactes sont communiquées lors des visites. Documents non contractuels, établis d'après les informations des propriétaires ; surfaces et conditions à confirmer avant toute signature.</p>
+  <p class="note"><span id="note_adresse">Les adresses exactes vous sont communiquées pour chaque visite confirmée.</span> Documents non contractuels, établis d'après les informations des propriétaires ; surfaces et conditions à confirmer avant toute signature.</p>
   MOSAIC Immobilier d'entreprise · SAS au capital de 1 500 € · 57 avenue Docteur Raymond Picaud, 06400 Cannes · SIREN 992 079 053 · RCS Cannes<br>
   Carte professionnelle Transaction n° CPI 0605 2025 000 000 187 délivrée par la CCI Nice Côte d'Azur · Titulaire ne recevant ni fonds, ni effets, ni valeurs<br>
   Garantie financière et assurance RCP : GALIAN-SMABTP, n° GF0000012169 · Barème d'honoraires sur www.mosaicimmobilier.com
@@ -449,7 +449,7 @@ footer .filet { display: none; } body.da footer .filet { display: block; }
     if (v.statut === "demande") return ["ko", `<b>Votre demande ${e(quandDe(v.debut))} n'a pas pu être confirmée à temps</b><small>Votre conseiller vous recontacte. Vous pouvez aussi choisir un autre créneau.</small>`];
     if (v.statut === "confirme" && v.bon && !v.bon_signe && !v.adresse) return ["ok", `<b>Visite confirmée ${e(quandDe(v.debut))}</b><small>Avant la visite, signez votre bon de visite en ligne : l'adresse exacte s'affiche dès la signature. Un empêchement ? Prévenez votre conseiller.</small>
       <a class="btn accent petit lien-bon" href="?bon=${encodeURIComponent(v.bon)}">Signer mon bon de visite</a>`];
-    if (v.statut === "confirme") return ["ok", `<b>Visite confirmée ${e(quandDe(v.debut))}</b><small>${v.adresse ? `Rendez-vous au ${e(v.adresse)}.` : "L'adresse exacte vous est envoyée par mail la veille de la visite."} Un empêchement ? Prévenez votre conseiller.</small>`];
+    if (v.statut === "confirme") return ["ok", `<b>Visite confirmée ${e(quandDe(v.debut))}</b><small>${v.adresse ? `Rendez-vous au ${e(v.adresse)}.` : "L'adresse exacte vous est envoyée par mail avant la visite."} Un empêchement ? Prévenez votre conseiller.</small>`];
     if (v.statut === "effectue") return ["ok", `<b>Visite faite ${e(quandDe(v.debut))}</b><small>Merci ! Votre conseiller revient vers vous.</small>`];
     return ["ko", `<b>La visite ${e(quandDe(v.debut))} est annulée</b><small>Choisissez un autre créneau, ou appelez votre conseiller.</small>`];
   }
@@ -488,7 +488,7 @@ footer .filet { display: none; } body.da footer .filet { display: block; }
           ${b.dpe ? `<tr><td>DPE</td><td class="v">${b.dpe_lettre ? `<span class="dpe">${LETTRES.map(([l, c]) => `<span class="${l === b.dpe_lettre ? "oui" : ""}" style="background:${c}">${l}</span>`).join("")}</span>` : e(b.dpe)}</td></tr>` : ""}</tbody></table>
           <div class="liens">${b.fiche ? `<a class="btn discret" href="${e(b.fiche)}" download="${e(b.fiche_nom || "Fiche du bien.pdf")}" target="_blank" rel="noopener">${ICONES.pdf}Fiche du bien (PDF)</a>` : ""}${b.reference ? `<span class="ref">Référence ${e(b.reference)}</span>` : ""}</div></div>
         <div class="c-caract">${(b.caracteristiques || []).length ? `<h3 class="sec"><span class="losange"></span>Caractéristiques</h3><table><tbody>${b.caracteristiques.map((x) => `<tr><td>${e(x.k)}</td><td class="v">${e(x.v)}</td></tr>`).join("")}</tbody></table>` : ""}</div>
-        <div class="c-situ">${b.carte ? `<h3 class="sec"><span class="losange"></span>Situation</h3><div class="carte"><img src="${e(b.carte)}" alt="Zone approximative du bien" loading="lazy"><p class="legende">Zone approximative${b.accroche ? " · " + e(b.accroche) : ""} · l'adresse exacte vous est communiquée lors de la visite</p></div>` : ""}</div>
+        <div class="c-situ">${b.carte ? `<h3 class="sec"><span class="losange"></span>Situation</h3><div class="carte"><img src="${e(b.carte)}" alt="Zone approximative du bien" loading="lazy"><p class="legende">Zone approximative${b.accroche ? " · " + e(b.accroche) : ""} · l'adresse exacte vous est communiquée une fois la visite confirmée</p></div>` : ""}</div>
       </div>
       <div class="reponse"><img class="losange-fond" src="losange.png" alt=""><div class="dedans-r">
         <div class="q">Ce bien vous intéresse ?<small>Choisissez un créneau de visite, ou demandez à être rappelé.</small></div>
@@ -552,7 +552,7 @@ footer .filet { display: none; } body.da footer .filet { display: block; }
       <section class="etapes"><div class="dedans">
         <div class="titre-section"><div><div class="lbl">Et ensuite ?</div><h2>Comment ça se passe</h2></div></div>
         <ol><li><b>Vous nous dites</b><p>« Je veux visiter » : vous choisissez un créneau, du lundi au samedi. « Rappelez-moi » : votre conseiller vous appelle.</p></li>
-          <li><b>Nous visitons ensemble</b><p>Votre conseiller confirme la visite par mail et vous donne l'adresse exacte. Un rappel vous est envoyé la veille.</p></li>
+          <li><b>Nous visitons ensemble</b><p>Votre conseiller confirme la visite par mail ; vous signez en ligne votre bon de visite et l'adresse exacte s'affiche. Un rappel vous est envoyé la veille.</p></li>
           <li><b>Nous vous accompagnons</b><p>Négociation des conditions, montage du dossier : MOSAIC vous assiste jusqu'à la signature.</p></li></ol>
       </div></section>
       <section class="agence"><div class="dedans">
@@ -695,6 +695,9 @@ footer .filet { display: none; } body.da footer .filet { display: block; }
     const suivre = () => document.body.classList.toggle("defile", scrollY > 420);
     addEventListener("scroll", suivre, { passive: true }); suivre();
     const plusieurs = bons.length > 1;
+    // Mention du bas de page : selon que l'adresse est déjà donnée ou pas
+    const note = (t) => { const n = document.getElementById("note_adresse"); if (n) n.textContent = t; };
+    note(x.statut === "signe" || x.adresse_donnee ? "" : "L'adresse exacte du bien s'affiche dès la signature de votre bon de visite.");
     document.title = `Bon de visite · MOSAIC Immobilier d'entreprise`;
     const tete = (titre, sous) => `<section class="doc"><div class="carre"></div><div class="points"></div><div class="barre"></div><div class="dedans">
         <img class="logo" src="logo_mosaic.png" alt="MOSAIC Immobilier d'entreprise">
@@ -715,8 +718,8 @@ footer .filet { display: none; } body.da footer .filet { display: block; }
           <div class="bv-champs">
             <label class="plein-l">Société<input value="${e(vi.societe)}" readonly></label>
             <label>Forme juridique<select id="bv_forme"><option value="">Choisir…</option>${FORMES.map((f) => `<option${f === vi.forme ? " selected" : ""}>${f}</option>`).join("")}${vi.forme && !FORMES.includes(vi.forme) ? `<option selected>${e(vi.forme)}</option>` : ""}</select></label>
-            <label>SIREN (9 chiffres)<input id="bv_siren" inputmode="numeric" autocomplete="off" value="${e(vi.siren)}" placeholder="123 456 789"></label>
-            <label>Vos nom et prénom<input id="bv_nom" autocomplete="name" value="${e(vi.representant)}"></label>
+            <label>SIREN (9 chiffres)<input id="bv_siren" inputmode="numeric" autocomplete="off" value="${e(String(vi.siren || "").replace(/\D/g, "").slice(0, 9).replace(/(\d{3})(?=\d)/g, "$1 "))}" maxlength="11" placeholder="123 456 789"></label>
+            <label>Vos nom et prénom<input id="bv_nom" autocomplete="name" maxlength="80" value="${e(vi.representant)}"></label>
             <label>Votre fonction dans la société<input id="bv_fonction" autocomplete="organization-title" value="${e(vi.fonction)}" placeholder="Gérant, Président, Directeur…"></label>
           </div></div>
         <div class="bv-bloc"><h2><span class="losange"></span>Votre engagement</h2>
@@ -724,7 +727,7 @@ footer .filet { display: none; } body.da footer .filet { display: block; }
         <div class="bv-bloc"><h2><span class="losange"></span>Votre signature</h2>
           <div class="bv-sig"><canvas id="bv_canvas" aria-label="Cadre de signature"></canvas><div class="vide" id="bv_vide">Signez ici, au doigt ou à la souris</div><button type="button" class="effacer" id="bv_effacer">Effacer</button></div>
           <label class="bv-accord"><input type="checkbox" id="bv_accepte"><span>J'ai lu et j'accepte l'engagement ci-dessus, au nom de la société ${e(vi.societe)}.</span></label>
-          <p class="bv-preuve">Signature électronique : la date, l'heure, votre adresse IP et votre navigateur sont enregistrés comme preuve. Une copie du bon signé vous est envoyée par mail.</p>
+          <p class="bv-preuve">Une copie du bon signé vous est envoyée par mail.</p>
           <div class="bv-valider"><button type="button" class="btn accent" id="bv_signer">${plusieurs ? `Signer les ${bons.length} bons de visite` : "Signer le bon de visite"}</button><span class="bv-erreur" id="bv_erreur" role="alert"></span></div></div>
         <div class="bv-bloc">${blocConseiller(c)}</div>
       </div>`;
@@ -755,7 +758,7 @@ footer .filet { display: none; } body.da footer .filet { display: block; }
       const cle = siren.length === 9 && [...siren].reverse().reduce((t, c, i) => { const d = Number(c) * (i % 2 ? 2 : 1); return t + (d > 9 ? d - 9 : d); }, 0) % 10 === 0;
       const manque = !val("bv_forme") ? "Choisissez la forme juridique de la société." : siren.length !== 9 ? "Le SIREN de la société compte 9 chiffres."
         : !cle ? "Ce SIREN n'existe pas : vérifiez les 9 chiffres (sur votre Kbis, par exemple)."
-        : val("bv_nom").length < 3 ? "Indiquez vos nom et prénom." : val("bv_fonction").length < 2 ? "Indiquez votre fonction dans la société."
+        : val("bv_nom").length < 3 || !/^[A-Za-zÀ-ÖØ-öø-ÿŒœ' -]+$/.test(val("bv_nom")) || !/\s/.test(val("bv_nom")) ? "Indiquez vos nom et prénom (lettres seulement)." : val("bv_fonction").length < 2 ? "Indiquez votre fonction dans la société."
         : reponses.some((r) => !r) ? `Répondez à la question « déjà présenté par une autre agence ? »${plusieurs ? " pour chaque bien" : ""}.`
         : traits < 8 ? "Signez dans le cadre avant de valider." : !document.getElementById("bv_accepte").checked ? "Cochez « J'ai lu et j'accepte » pour signer." : "";
       if (manque) { erreur.textContent = manque; return; }
@@ -775,8 +778,16 @@ footer .filet { display: none; } body.da footer .filet { display: block; }
         <div class="bv"><div class="bv-signe">${CHECK}<div><b>Merci, c'est signé.</b><span>${signes.map((y) => `Bon ${e(y.reference)}`).join(", ")}. Votre conseiller vous retrouvera sur place.</span></div></div>
         <div class="bv-bloc"><h2><span class="losange"></span>${plusieurs ? "Les biens" : "Le bien"}</h2>${signes.map((y, i) => carteBon(y, i, true)).join("")}</div>
         <div class="bv-bloc">${blocConseiller(c)}</div></div>`;
+      note("");
       scrollTo(0, 0);
     };
+    // Saisie propre : SIREN en chiffres seulement, groupés par 3 (123 456 789) ; nom et prénom en lettres (accents, tiret, apostrophe)
+    const champSiren = document.getElementById("bv_siren"), champNom = document.getElementById("bv_nom");
+    champSiren.addEventListener("input", () => { champSiren.value = champSiren.value.replace(/\D/g, "").slice(0, 9).replace(/(\d{3})(?=\d)/g, "$1 "); });
+    champNom.addEventListener("input", () => {
+      const v = champNom.value.replace(/[^A-Za-zÀ-ÖØ-öø-ÿŒœ' -]/g, "").replace(/ {2,}/g, " ").replace(/-{2,}/g, "-").replace(/'{2,}/g, "'");
+      if (v !== champNom.value) champNom.value = v;
+    });
   }
 
   // Lien « Choisir un créneau de visite » du mail (…&visite=1) : la page s'ouvre sur les créneaux du bien
