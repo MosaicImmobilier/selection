@@ -155,6 +155,7 @@ td.v { color: var(--bleu); font-weight: 700; padding-left: 12px; text-align: rig
 .visite-etat.attente { border-left-color: #FFD24D; } .visite-etat.ok { border-left-color: #5BD69B; } .visite-etat.ko { border-left-color: #FFB4AB; }
 .choix-horaire { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; margin-top: 12px; }
 .visite-etat .lien-clair, .creneaux .lien-clair { font: inherit; font-size: 14px; background: none; border: 0; color: rgba(255,255,255,.85); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; padding: 0; }
+.visite-etat > [data-annuler] { display: inline-block; margin-top: 10px; }
 .creneaux { flex-basis: 100%; min-width: 0; max-width: 100%; border-top: 1px solid rgba(255,255,255,.18); padding-top: 20px; }
 .creneaux[hidden] { display: none; }
 .creneaux h4 { font-size: 17px; font-weight: 700; }
@@ -411,7 +412,7 @@ footer .filet { display: none; } body.da footer .filet { display: block; }
     horloge: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
     photos: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><rect x="3" y="5" width="18" height="14"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-8 8"/></svg>',
   };
-  // Seules les fonctions publiques de la base sont appelées (sélection, réponse, créneaux, demande de visite, horaire accepté), avec le code du lien ; aucune table n'est lisible
+  // Seules les fonctions publiques de la base sont appelées (sélection, réponse, créneaux, demande de visite, horaire accepté, annulation), avec le code du lien ; aucune table n'est lisible
   async function rpc(nom, corps) {
     const r = await fetch(`${C.supabaseUrl}/rest/v1/rpc/${nom}`, { method: "POST", headers: { "Content-Type": "application/json", apikey: C.supabaseAnonKey, Authorization: `Bearer ${C.supabaseAnonKey}` }, body: JSON.stringify(corps) });
     const j = await r.json().catch(() => null);
@@ -440,16 +441,18 @@ footer .filet { display: none; } body.da footer .filet { display: block; }
   const cleJour = (iso) => new Date(iso).toLocaleDateString("fr-CA", PARIS); // 2026-11-02
   const quandDe = (iso) => `le ${jourDe(iso)} à ${heureDe(iso)}`;
   const active = (v) => v && ((v.statut === "demande" && !v.expiree) || v.statut === "confirme") && new Date(v.fin) > Date.now();
+  // Le client peut annuler sa visite à venir (1.46.0), puis en choisir une autre
+  const annuler = `<button type="button" class="lien-clair" data-annuler>Annuler ma visite</button>`;
   // Où en est la visite du client sur ce bien
   function etatVisite(v) {
     if (!v) return ["", ""];
     if (v.statut === "demande" && !v.expiree && v.proposee) return ["attente", `<b>Votre conseiller vous propose ${e(quandDe(v.debut))}</b><small>${v.initial ? `Le créneau du ${e(jourDe(v.initial))} à ${e(heureDe(v.initial))} n'était pas disponible. ` : ""}Cet horaire vous convient ?</small>
       <span class="choix-horaire"><button type="button" class="btn accent petit" data-accepter>Accepter cet horaire</button><button type="button" class="lien-clair" data-autre>Choisir un autre créneau</button></span>`];
-    if (v.statut === "demande" && !v.expiree) return ["attente", `<b>Visite demandée ${e(quandDe(v.debut))}</b><small>En attente de confirmation : votre conseiller vérifie avec le propriétaire, puis vous confirme la visite par mail.</small>`];
+    if (v.statut === "demande" && !v.expiree) return ["attente", `<b>Visite demandée ${e(quandDe(v.debut))}</b><small>En attente de confirmation : votre conseiller vérifie avec le propriétaire, puis vous confirme la visite par mail.</small>${annuler}`];
     if (v.statut === "demande") return ["ko", `<b>Votre demande ${e(quandDe(v.debut))} n'a pas pu être confirmée à temps</b><small>Votre conseiller vous recontacte. Vous pouvez aussi choisir un autre créneau.</small>`];
-    if (v.statut === "confirme" && v.bon && !v.bon_signe && !v.adresse) return ["ok", `<b>Visite confirmée ${e(quandDe(v.debut))}</b><small>Avant la visite, signez votre bon de visite en ligne : l'adresse exacte s'affiche dès la signature. Un empêchement ? Prévenez votre conseiller.</small>
-      <a class="btn accent petit lien-bon" href="?bon=${encodeURIComponent(v.bon)}">Signer mon bon de visite</a>`];
-    if (v.statut === "confirme") return ["ok", `<b>Visite confirmée ${e(quandDe(v.debut))}</b><small>${v.adresse ? `Rendez-vous au ${e(v.adresse)}.` : "L'adresse exacte vous est envoyée par mail avant la visite."} Un empêchement ? Prévenez votre conseiller.</small>`];
+    if (v.statut === "confirme" && v.bon && !v.bon_signe && !v.adresse) return ["ok", `<b>Visite confirmée ${e(quandDe(v.debut))}</b><small>Avant la visite, signez votre bon de visite en ligne : l'adresse exacte s'affiche dès la signature. Un empêchement ? Annulez, puis choisissez un autre créneau.</small>
+      <span class="choix-horaire"><a class="btn accent petit lien-bon" href="?bon=${encodeURIComponent(v.bon)}">Signer mon bon de visite</a>${annuler}</span>`];
+    if (v.statut === "confirme") return ["ok", `<b>Visite confirmée ${e(quandDe(v.debut))}</b><small>${v.adresse ? `Rendez-vous au ${e(v.adresse)}.` : "L'adresse exacte vous est envoyée par mail avant la visite."} Un empêchement ? Annulez, puis choisissez un autre créneau.</small>${annuler}`];
     if (v.statut === "effectue") return ["ok", `<b>Visite faite ${e(quandDe(v.debut))}</b><small>Merci ! Votre conseiller revient vers vous.</small>`];
     return ["ko", `<b>La visite ${e(quandDe(v.debut))} est annulée</b><small>Choisissez un autre créneau, ou appelez votre conseiller.</small>`];
   }
@@ -573,6 +576,7 @@ footer .filet { display: none; } body.da footer .filet { display: block; }
       if (ev.target.closest("[data-rappel-visite]")) { boite.hidden = true; return repondre(art, n, "visite"); }
       if (ev.target.closest("[data-accepter]")) return accepter(art, n, ev.target.closest("[data-accepter]"));
       if (ev.target.closest("[data-autre]")) return ouvrirCreneaux(art, n, boite, ev.target.closest("[data-autre]"));
+      if (ev.target.closest("[data-annuler]")) return annulerVisite(art, n, ev.target.closest("[data-annuler]"));
       const b = ev.target.closest("[data-reponse]");
       if (!b) return;
       // « Je veux visiter » : le client choisit son créneau (sauf visite déjà demandée ou confirmée)
@@ -641,6 +645,14 @@ footer .filet { display: none; } body.da footer .filet { display: block; }
       bouton.disabled = true; bouton.textContent = "Un instant…";
       try { const r = await rpc("selection_accepter_horaire", { p_jeton: jeton, p_numero: n }); poserVisite(art, n, r.visite); }
       catch (err) { bouton.disabled = false; bouton.textContent = "Accepter cet horaire"; const m = art.querySelector("[data-merci]"); m.textContent = err.message; m.style.color = "#FFB4AB"; m.hidden = false; }
+    }
+    // Le client annule sa visite : le créneau se libère, son conseiller est prévenu ; il peut en choisir un autre
+    async function annulerVisite(art, n, bouton) {
+      const v = visites[n - 1];
+      if (!v || !window.confirm(`Annuler votre visite ${quandDe(v.debut)} ?`)) return;
+      bouton.disabled = true; bouton.textContent = "Annulation…";
+      try { const r = await rpc("selection_annuler_visite", { p_jeton: jeton, p_numero: n }); poserVisite(art, n, r.visite); }
+      catch (err) { bouton.disabled = false; bouton.textContent = "Annuler ma visite"; const m = art.querySelector("[data-merci]"); m.textContent = err.message; m.style.color = "#FFB4AB"; m.hidden = false; }
     }
     async function demander(art, n, boite) {
       if (!choix.debut) return;
