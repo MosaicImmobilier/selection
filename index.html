@@ -427,7 +427,7 @@ footer .filet { display: none; } body.da footer .filet { display: block; }
     while ((n = w.nextNode())) {
       const t = n.nodeValue; if (!/onseiller|onsultant|Il la confirme/.test(t)) continue;
       let u = t.replace(/([Vv])otre conseiller\b/g, "$1otre consultant"); // messages renvoyés par la base
-      if (FEM) u = u.replace(/onsultant(?!e)/g, "onsultante").replace(/\bIl la confirme/g, "Elle la confirme").replace(/appelez-le\b/g, "appelez-la");
+      if (FEM) u = u.replace(/onsultant(?!e)/g, "onsultante").replace(/\bIl la confirme/g, "Elle la confirme").replace(/appelez-le\b/g, "appelez-la").replace(/seul interlocuteur/g, "seule interlocutrice");
       if (u !== t) n.nodeValue = u;
     } };
   const feminin = (c) => { FEM = c?.civilite === "Mme"; accorderPage(); };
